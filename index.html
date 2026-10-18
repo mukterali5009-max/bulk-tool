@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#85a6d5">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Gmail Bulk Tool</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: #08090c; color: #f4ead2; font-family: 'Noto Sans Bengali', system-ui, sans-serif; min-height: 100vh; }
+  .glow { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; }
+  .g1 { width: 360px; height: 360px; top: -130px; right: -130px; background: radial-gradient(circle, rgba(212,175,55,.24), rgba(212,175,55,0) 60%); }
+  .g2 { width: 330px; height: 330px; bottom: 90px; left: -150px; background: radial-gradient(circle, rgba(255,160,60,.13), rgba(255,160,60,0) 60%); }
+  .g3 { width: 280px; height: 280px; top: 46%; right: -130px; background: radial-gradient(circle, rgba(184,134,11,.14), rgba(184,134,11,0) 60%); }
+
+  .app { position: relative; z-index: 1; max-width: 480px; margin: auto; padding: 18px 14px 100px; }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .hi { font-size: 12px; letter-spacing: 1.5px; color: #d4af37; }
+  .ttl { font-size: 24px; font-weight: 600; color: #f8efd6; }
+  .ibtn { width: 42px; height: 42px; border-radius: 14px; border: 1px solid rgba(212,175,55,.5); background: rgba(212,175,55,.08); display: flex; align-items: center; justify-content: center; }
+
+  .glass { background: linear-gradient(135deg, rgba(255,255,255,.11), rgba(255,255,255,.04)); border: 1px solid rgba(212,175,55,.32); border-radius: 20px; -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.14); }
+  .hero { position: relative; overflow: hidden; padding: 16px; display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .hero .wm { position: absolute; right: -22px; bottom: -26px; opacity: .2; }
+  .hero .txt { position: relative; }
+  .hero small { font-size: 13px; color: #e6d8ac; display: block; }
+  .hero b { font-size: 20px; font-weight: 600; display: block; margin: 2px 0; color: #fff6dc; }
+  .hero .left { font-size: 13px; color: #f0d078; }
+  .hero .day { font-size: 12px; color: #d9cfae; margin-top: 4px; }
+
+  .card { padding: 14px; margin-bottom: 14px; }
+  .lblrow { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 14px; }
+  .lblrow:first-child { margin-top: 0; }
+  label.f { display: block; font-size: 14px; font-weight: 500; color: #f1e4bd; margin: 14px 0 6px; }
+  .lblrow label.f { margin: 0 0 6px; }
+  label.f:first-child { margin-top: 0; }
+  .cnt { font-size: 11px; color: #cfc6a8; font-weight: 400; margin-left: 8px; }
+  .in { width: 100%; padding: 13px; font-size: 15px; color: #fff; background: rgba(0,0,0,.42); border: 1px solid rgba(212,175,55,.35); border-radius: 14px; outline: none; font-family: inherit; }
+  .in:focus { border-color: #f0d078; }
+  .in::placeholder { color: #a89f82; }
+  select.in option { background: #14120c; color: #fff; }
+  textarea.in { min-height: 100px; resize: vertical; }
+  .hint { font-size: 12px; color: #d3c9aa; margin-top: 6px; line-height: 1.6; }
+  .hint code, .help code { background: rgba(212,175,55,.2); padding: 1px 6px; border-radius: 6px; color: #f6dd94; }
+
+  .btn { width: 100%; border: 0; color: #1a1405; font-size: 15px; font-weight: 600; padding: 13px; border-radius: 30px; background: linear-gradient(90deg, #b8860b, #f0d078); margin-top: 14px; font-family: inherit; }
+  .btn:active { opacity: .85; }
+  .danger { background: rgba(255,100,130,.2); border: 1px solid rgba(255,100,130,.45); color: #ffa3b6; }
+  .mini { background: transparent; border: 1px solid rgba(212,175,55,.55); color: #f0d078; border-radius: 14px; padding: 5px 12px; font-size: 12px; font-family: inherit; }
+  .ghost { flex: 1; background: rgba(212,175,55,.1); border: 1px solid rgba(212,175,55,.55); color: #f6dd94; border-radius: 14px; padding: 11px; font-size: 14px; font-family: inherit; }
+  .tools { display: flex; gap: 8px; margin-top: 12px; }
+  .tplrow { display: flex; gap: 8px; align-items: center; }
+
+  .bar { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin: 4px 0 10px; flex-wrap: wrap; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { border: 1px solid rgba(212,175,55,.38); background: rgba(255,255,255,.07); color: #f4ead2; border-radius: 20px; padding: 6px 12px; font-size: 12px; font-family: inherit; }
+  .chip.on { background: rgba(212,175,55,.3); color: #fff; border-color: #f0d078; }
+  .all { border: 0; color: #1a1405; font-size: 12px; font-weight: 600; padding: 9px 14px; border-radius: 20px; background: linear-gradient(90deg, #b8860b, #f0d078); font-family: inherit; }
+  .all.stop { background: #c62855; color: #fff; }
+
+  .item { display: flex; align-items: center; gap: 10px; padding: 10px; margin-bottom: 8px; border-radius: 16px; }
+  .av { width: 36px; height: 36px; border-radius: 11px; background: rgba(212,175,55,.22); color: #f0d078; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0; }
+  .mid { flex: 1; min-width: 0; }
+  .mid .em { font-size: 14px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mid .sub { font-size: 12px; color: #d3c9aa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .st { border-radius: 20px; padding: 7px 12px; font-size: 12px; font-family: inherit; border: 1px solid #d4af37; background: transparent; color: #f0d078; min-width: 66px; text-align: center; flex-shrink: 0; }
+  .st.ok { background: rgba(120,230,170,.18); color: #8ff0b9; border-color: transparent; }
+  .st.bad { background: rgba(255,100,130,.2); color: #ff9db3; border-color: transparent; }
+  .st.wait { background: rgba(255,255,255,.14); color: #fff; border-color: transparent; }
+  .xb { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255,255,255,.22); background: transparent; color: #cfc6a8; font-size: 16px; line-height: 1; flex-shrink: 0; padding: 0; }
+  .empty { text-align: center; color: #d3c9aa; font-size: 14px; padding: 24px 0; }
+  .pvs { font-weight: 600; margin: 8px 0 6px; color: #f0d078; }
+  .pvb { white-space: pre-wrap; font-size: 14px; color: #f4ead2; line-height: 1.7; max-height: 220px; overflow: auto; }
+  .ph { display: flex; justify-content: space-between; align-items: center; }
+
+  .sec { display: none; }
+  .sec.on { display: block; }
+  .help { font-size: 13px; color: #f1e4bd; line-height: 1.9; }
+  h3 { font-size: 15px; margin: 0 0 10px; font-weight: 600; color: #f8efd6; }
+
+  nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; justify-content: space-around; max-width: 480px; margin: auto; padding: 10px 0 14px; background: rgba(11,12,16,.86); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-top: 1px solid rgba(212,175,55,.3); border-radius: 22px 22px 0 0; }
+  nav button { background: none; border: 0; color: #b9ae8a; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; font-family: inherit; padding: 4px 18px; }
+  nav button.on { color: #f0d078; }
+
+  #toast { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 9; max-width: 88%; background: rgba(28,24,10,.96); border: 1px solid rgba(212,175,55,.5); color: #fff; padding: 10px 16px; border-radius: 14px; font-size: 13px; display: none; text-align: center; }
+
+  .c-gold { color: #f0d078 !important; }
+  .c-aqua { color: #8fe3df !important; }
+  .c-rose { color: #ffa6cf !important; }
+  .c-lav { color: #c9baff !important; }
+  #sec-set label.f:nth-of-type(3n+1) { color: #8fe3df; }
+  #sec-set label.f:nth-of-type(3n+2) { color: #f0d078; }
+  #sec-set label.f:nth-of-type(3n) { color: #ffa6cf; }
+  .hint { color: #a9e8e3 !important; }
+  .cnt { color: #8ff0b9 !important; }
+  .hero small { color: #8fe3df !important; }
+  .hero b { color: #fff6e0 !important; }
+  .hero .left { color: #f0d078 !important; }
+  .hero .day { color: #cdbfff !important; }
+  .mid .sub { color: #ffa6cf !important; }
+  .chip[data-f="all"] { color: #f0d078; }
+  .chip[data-f="idle"] { color: #8fe3df; }
+  .chip[data-f="sent"] { color: #8ff0b9; }
+  .chip[data-f="fail"] { color: #ff9db3; }
+  .chip.on { color: #fff !important; }
+  h3 { color: #f0d078 !important; }
+  .help { color: #d9cffb !important; }
+  .pvb { color: #fff1d0 !important; }
+  .empty { color: #c9baff !important; }
+
+  .stats4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .stc { padding: 12px; }
+  .stc small { display: block; font-size: 12px; margin-bottom: 4px; }
+  .stc b { font-size: 21px; font-weight: 600; }
+  nav button { padding: 4px 6px; }
+
+  .wm.env { opacity: .55; pointer-events: auto; cursor: pointer; z-index: 2; animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: .35; } 50% { opacity: .8; } }
+  .tap { font-size: 12px; color: #f0d078; margin-top: 6px; }
+  .modal { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,.62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .modal.on { display: flex; }
+  .sheet { width: 100%; max-width: 440px; padding: 16px; border-radius: 22px; background: rgba(22,20,13,.95); border: 1px solid rgba(212,175,55,.4); }
+  .mrow { display: flex; gap: 10px; margin-top: 14px; }
+  .mrow .ghost { flex: 1; padding: 14px; font-size: 15px; font-weight: 600; border-radius: 16px; }
+  .addb { flex: 1.6; border: 0; border-radius: 16px; padding: 14px; font-size: 15px; font-weight: 600; color: #1a1405; background: linear-gradient(90deg, #b8860b, #f0d078); font-family: inherit; }
+
+  .chipset, .dots { display: none; }
+  .top { flex-wrap: wrap; }
+  .chipset { align-items: center; gap: 8px; margin-top: 14px; padding: 10px 16px; border-radius: 18px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.32); color: #fff; font-size: 14px; }
+  .keydot { width: 10px; height: 10px; border-radius: 50%; background: #ff3b5c; display: inline-block; }
+  .dots { width: 100%; align-items: center; gap: 10px; margin-top: 14px; }
+  .dl { color: #fff; font-size: 13px; margin-right: 4px; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); padding: 0; }
+  .dot.sel { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.55); }
+  .stats3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .stats3 .stc { text-align: center; padding: 12px 4px; }
+  .stc b { color: #fff6e0; }
+  .ghost.on { background: rgba(212,175,55,.35); color: #fff; border-color: #f0d078; }
+  .fab { position: fixed; left: 14px; right: 14px; max-width: 452px; margin: auto; bottom: 86px; z-index: 6; display: none; flex-direction: column; align-items: center; gap: 2px; border: 0; border-radius: 22px; padding: 12px; font-family: inherit; color: #1a1405; background: linear-gradient(90deg, #b8860b, #f0d078); }
+  .fab b { font-size: 17px; font-weight: 600; }
+  .fab small { font-size: 12px; opacity: .85; }
+  .fab.on { display: flex; }
+  .fab.stop { background: #c62855; color: #fff; }
+  body.hasfab .app { padding-bottom: 180px; }
+
+  /* ===== আইওএস লাইট থিম ===== */
+  body.ios { background: linear-gradient(#85a6d5, #a3b3cd 55%, #b2b9c6); background-attachment: fixed; color: #1c2433; }
+  body.ios .glow { display: none; }
+  body.ios .top { padding: 18px; border-radius: 28px; background: linear-gradient(160deg, var(--ac1), var(--ac2)); margin-bottom: 16px; box-shadow: 0 10px 26px rgba(40,70,140,.25); align-items: flex-start; }
+  body.ios .hi { color: rgba(255,255,255,.9); }
+  body.ios .ttl { color: #fff; font-size: 28px; }
+  body.ios .ibtn { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.45); }
+  body.ios .ibtn svg { stroke: #fff; }
+  body.ios .chipset { display: inline-flex; }
+  body.ios .dots { display: flex; }
+  body.ios .glass { background: rgba(255,255,255,.95); border: 1px solid #fff; box-shadow: 0 6px 20px rgba(60,90,160,.12); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  body.ios .hero small, body.ios .stc small { color: #6b7a99 !important; }
+  body.ios .hero b { color: #1c2433 !important; }
+  body.ios .hero .left, body.ios .tap, body.ios .cnt { color: var(--ac1) !important; }
+  body.ios .hero .day { color: #6b7a99 !important; }
+  body.ios .hero svg circle:not([id]) { stroke: #e8ecf4; }
+  body.ios .hero svg text { fill: #1c2433; }
+  body.ios stop:nth-child(1) { stop-color: var(--ac1); }
+  body.ios stop:nth-child(2) { stop-color: var(--ac2); }
+  body.ios .wm rect, body.ios .wm path { stroke: var(--ac1); }
+  body.ios .stc b { color: var(--ac1) !important; }
+  body.ios label.f, body.ios .c-gold, body.ios .c-aqua, body.ios .c-rose, body.ios .c-lav, body.ios #sec-set label.f { color: #4b5878 !important; }
+  body.ios .hint { color: #6b7a99 !important; }
+  body.ios .hint code, body.ios .help code { background: var(--acs); color: var(--ac1); }
+  body.ios h3 { color: #1c2433 !important; }
+  body.ios .help { color: #4b5878 !important; }
+  body.ios .empty { color: #8a96ad !important; }
+  body.ios .pvs { color: var(--ac1) !important; }
+  body.ios .pvb { color: #1c2433 !important; }
+  body.ios .in { background: #f3f5fa; border: 1px solid #dfe5f0; color: #1c2433; }
+  body.ios .in:focus { border-color: var(--ac1); }
+  body.ios .in::placeholder { color: #8a96ad; }
+  body.ios select.in option { background: #fff; color: #1c2433; }
+  body.ios .btn, body.ios .addb, body.ios .all, body.ios .fab { background: linear-gradient(180deg, var(--ac1), var(--acd)); color: #fff; }
+  body.ios .all.stop, body.ios .fab.stop { background: #ff3b5c; color: #fff; }
+  body.ios .btn.danger { background: rgba(255,59,92,.12); border: 1px solid rgba(255,59,92,.4); color: #e0244a; }
+  body.ios .ghost { background: #eef1f7; border: 1px solid #dde3ee; color: #1c2433; }
+  body.ios .ghost.on { background: var(--ac1); border-color: var(--ac1); color: #fff; }
+  body.ios .mini { border-color: #dde3ee; color: var(--ac1); }
+  body.ios .chip { background: #fff; border: 1px solid #dde3ee; color: #4b5878; }
+  body.ios .chip[data-f="all"], body.ios .chip[data-f="idle"], body.ios .chip[data-f="sent"], body.ios .chip[data-f="fail"] { color: #4b5878; }
+  body.ios .chip.on { background: var(--ac1) !important; border-color: var(--ac1); color: #fff !important; }
+  body.ios .mid .em { color: #1c2433; }
+  body.ios .mid .sub { color: #6b7a99 !important; }
+  body.ios .av { color: var(--ac1) !important; background: var(--acs) !important; }
+  body.ios .st { border-color: var(--ac1); color: var(--ac1); background: transparent; }
+  body.ios .st.ok { background: rgba(52,199,89,.15); color: #1f9d48; border-color: transparent; }
+  body.ios .st.bad { background: rgba(255,59,92,.12); color: #e0244a; border-color: transparent; }
+  body.ios .st.wait { background: #eef1f7; color: #6b7a99; border-color: transparent; }
+  body.ios .xb { border-color: #d5dbe8; color: #8a96ad; }
+  body.ios #tplList .card > div:nth-child(1) { color: var(--ac1) !important; }
+  body.ios #tplList .card > div:nth-child(2) { color: #4b5878 !important; }
+  body.ios #tplList .card > div:nth-child(3) { color: #1c2433 !important; }
+  body.ios nav { background: rgba(255,255,255,.93); border-top: 1px solid #dfe5f0; }
+  body.ios nav button { color: #8a96ad; }
+  body.ios nav button.on { color: var(--ac1); }
+  body.ios .modal { background: rgba(20,30,60,.45); }
+  body.ios .sheet { background: #fff; border: 1px solid #e3e8f2; }
+  body.ios #toast { background: #1c2433; border-color: #1c2433; }
+
+  /* ===== উপরের বড় কার্ড (গ্রিড) ===== */
+  .top { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; align-items: center; }
+  .top .hi { grid-column: 1; grid-row: 1; }
+  .top .ttl { grid-column: 1; grid-row: 2; }
+  .top .ibtn { grid-column: 2; grid-row: 1 / 3; }
+  .topenv, .tap2 { display: none; }
+  .dot { width: 22px; height: 22px; }
+  .dl { font-size: 12px; margin-right: 2px; white-space: nowrap; }
+  .topenv { position: absolute; right: -26px; bottom: -56px; width: 290px; height: 203px; cursor: pointer; z-index: 2; animation: pulse2 2.8s ease-in-out infinite; }
+  .tap2 { position: absolute; left: 18px; bottom: 16px; color: rgba(255,255,255,.9); font-size: 13px; z-index: 1; }
+  @keyframes pulse2 { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+
+  body.ios .top { grid-template-rows: auto auto auto 1fr; align-items: center; position: relative; overflow: hidden; min-height: 275px; padding: 18px 18px 20px; }
+  body.ios .hi { grid-column: 1; grid-row: 1; font-size: 15px; }
+  body.ios .dots { display: flex; grid-column: 2; grid-row: 1; margin: 0; width: auto; gap: 6px; justify-self: end; align-items: center; }
+  body.ios .ttl { grid-column: 1 / -1; grid-row: 2; margin-top: 12px; font-size: 34px; font-weight: 700; line-height: 1.15; }
+  body.ios .chipset { grid-column: 1 / -1; grid-row: 3; justify-self: start; margin-top: 18px; }
+  body.ios .topenv, body.ios .tap2 { display: block; }
+  body.ios .ibtn { display: none; }
+  body.ios.cp .top { min-height: 0; }
+  body.ios.cp .topenv, body.ios.cp .tap2, body.ios.cp .chipset { display: none; }
+
+  body.ios .stats3 .stc { padding: 16px 6px; border-radius: 26px; }
+  body.ios .stats3 .stc small { font-size: 13px; margin-bottom: 6px; }
+  body.ios .stats3 .stc b { font-size: 36px; font-weight: 800; }
+  body.ios .stats4 .stc b { font-size: 28px; font-weight: 800; }
+  body.ios .hero { padding: 20px; border-radius: 28px; gap: 20px; }
+  body.ios .hero svg:not(.wm) { width: 100px; height: 100px; }
+  body.ios .hero svg circle { stroke-width: 7; }
+  body.ios .hero svg text { font-size: 17px; font-weight: 700; }
+  body.ios .hero b { font-size: 21px; font-weight: 700; }
+  body.ios .hero .wm, body.ios .tap { display: none !important; }
+  body.ios .fab { border-radius: 26px; padding: 16px; box-shadow: 0 12px 26px rgba(10,100,230,.35); }
+  body.ios .fab b { font-size: 21px; font-weight: 700; }
+  body.ios .fab small { font-size: 14px; opacity: .95; }
+  body.ios .sheet { border-radius: 28px; }
+  body.ios .addb, body.ios .mrow .ghost { border-radius: 20px; }
+
+  /* স্বাগতম মাঝখানে */
+  .top .hi { justify-self: center; text-align: center; }
+  body.ios .hi { grid-column: 1 / -1; justify-self: center; text-align: center; }
+  body.ios .top { min-height: 250px; }
+
+  /* সেটিং পেজে রঙের বাটন */
+  #sec-set .dots { display: flex; width: 100%; margin: 14px 0 0; gap: 8px; align-items: center; flex-wrap: wrap; }
+  #sec-set .dl { color: #f4ead2; font-size: 13px; margin-right: 4px; }
+  body.ios #sec-set .dl { color: #4b5878; }
+  #sec-set .dot { border: 2px solid rgba(255,255,255,.4); width: 28px; height: 28px; }
+  #sec-set .dot.sel { border-color: #fff; box-shadow: 0 0 0 3px var(--ac1); }
+
+  /* মাঝের বিরতি কার্ডে EmailJS বাটন */
+  .kchip { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 6px 10px; border-radius: 14px; font-size: 12px; border: 1px solid rgba(212,175,55,.55); color: #f0d078; }
+  body.ios .kchip { background: var(--acs); border-color: transparent; color: var(--ac1); }
+
+  /* তারিখ বামে, নাম নিচে */
+  .top .date { grid-column: 1; grid-row: 2; justify-self: start; text-align: left; white-space: pre-line; font-size: 13px; line-height: 1.55; color: #f0d078; margin-top: 4px; }
+  .top .ttl { grid-row: 3; }
+  .top .ibtn { grid-row: 1 / 4; }
+  body.ios .date { grid-column: 1 / -1; grid-row: 2; margin-top: 14px; font-size: 14px; font-weight: 500; color: rgba(255,255,255,.95); }
+  body.ios .date::first-line { font-size: 17px; font-weight: 700; }
+  body.ios .ttl { grid-row: 3; margin-top: 30px; }
+  body.ios .top { min-height: 275px; }
+
+  /* তারিখ বাম কোণে, নাম আগের জায়গায় */
+  .top { position: relative; }
+  .top .date { grid-column: 1; grid-row: 3; margin-top: 6px; font-size: 12px; line-height: 1.4; }
+  .top .ttl { grid-row: 2; }
+  .top .ibtn { grid-row: 1 / 3; }
+  body.ios .date { position: absolute; left: 18px; top: 14px; margin: 0; font-size: 11px; line-height: 1.2; font-weight: 500; z-index: 3; pointer-events: none; color: rgba(255,255,255,.95); }
+  body.ios .date::first-line { font-size: 11px; font-weight: 700; }
+  body.ios .ttl { grid-row: 2; margin-top: 12px; }
+  body.ios .top { min-height: 250px; }
+
+  /* তারিখ: একেবারে উপরের বাম কোণে */
+  .app > .date { position: static; margin: 0 0 10px 4px; font-size: 12.5px; font-weight: 500; line-height: 1.4; white-space: normal; color: #f0d078; pointer-events: auto; }
+  body.ios .app > .date { position: static; margin: 0 0 10px 4px; font-size: 12.5px; font-weight: 600; color: #3f5170; }
+  body.ios .app > .date::first-line { font-size: inherit; font-weight: inherit; }
+  .app { padding-top: 10px; }
+
+  /* তারিখ: স্বাগতম-এর ঠিক নিচে, বামে */
+  .app { padding-top: 18px; }
+  .top .date { grid-column: 1; grid-row: 2; justify-self: start; margin-top: 2px; font-size: 12.5px; font-weight: 500; line-height: 1.4; color: #f0d078; white-space: normal; }
+  .top .ttl { grid-row: 3; }
+  .top .ibtn { grid-row: 1 / 4; }
+  body.ios .top .date { position: static; grid-column: 1 / -1; grid-row: 2; justify-self: start; margin: 8px 0 0; font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,.96); pointer-events: auto; z-index: auto; }
+  body.ios .top .date::first-line { font-size: inherit; font-weight: inherit; }
+  body.ios .top .ttl { grid-row: 3; margin-top: 8px; }
+
+  /* ===== নীল কার্ড: সাদা লেখা + তিন রং  ===== */
+  body.ios .hi, body.ios .ttl, body.ios .tap2 { color: #fff; }
+  body.ios .top .date { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.22); }
+  .dsep { color: #fff; }
+  .d1 { color: #ffe27a; font-weight: 700; }
+  .d2 { color: #9cf0ff; }
+  .d3 { color: #ffc4ef; }
+  .topenv { filter: none; opacity: .42; }
+  .wm.env { animation: none !important; opacity: .38; }
+  @media (prefers-reduced-motion: reduce) {
+    body.ios .top::before, body.ios .top::after, .topenv { animation: none; }
+  }
+
+  /* EmailJS সেটিং চিপ: টাইটেলের নিচে, খাম ছোট */
+  body .top .chipset { display: inline-flex !important; grid-column: 1 / -1 !important; grid-row: 4 !important; justify-self: start !important; align-self: start !important; margin-top: 10px !important; position: relative; z-index: 3; cursor: pointer; font-size: 13px; padding: 8px 14px; }
+  body.ios.cp .top .chipset { display: none !important; }
+  .topenv { width: 200px !important; height: 140px !important; right: -4px !important; bottom: -26px !important; }
+
+  /* খামের অ্যানিমেশন: ভাসা + দোলা + ভাঁজ আঁকা */
+  .topenv { animation: envFloat 3.4s ease-in-out infinite; transform-origin: 60% 70%; }
+  .topenv path { stroke-dasharray: 300; animation: envFlap 4.2s ease-in-out infinite; }
+  @keyframes envFloat {
+    0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: .38; }
+    25%  { transform: translateY(-9px) rotate(-3deg) scale(1.04); opacity: .6; }
+    50%  { transform: translateY(-3px) rotate(2deg) scale(1.02); opacity: .5; }
+    75%  { transform: translateY(-10px) rotate(3deg) scale(1.05); opacity: .62; }
+    100% { transform: translateY(0) rotate(0deg) scale(1); opacity: .38; }
+  }
+  @keyframes envFlap { 0% { stroke-dashoffset: 300; } 40%, 80% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -300; } }
+  @media (prefers-reduced-motion: reduce) { .topenv, .topenv path { animation: none; } }
+
+  /* ===== সব ফন্টের রং ম্যাচিং: একই রঙের সেট ===== */
+  /* গোল্ড থিম: সোনালি + ক্রিম */
+  body:not(.ios) .c-gold, body:not(.ios) .c-aqua, body:not(.ios) .c-rose, body:not(.ios) .c-lav,
+  body:not(.ios) #sec-set label.f, body:not(.ios) label.f { color: #f1e4bd !important; }
+  body:not(.ios) h3, body:not(.ios) .pvs, body:not(.ios) .cnt, body:not(.ios) .hero .left { color: #f0d078 !important; }
+  body:not(.ios) .hint, body:not(.ios) .mid .sub, body:not(.ios) .empty, body:not(.ios) .hero small, body:not(.ios) .hero .day, body:not(.ios) .stc small { color: #d9cfae !important; }
+  body:not(.ios) .help, body:not(.ios) .pvb, body:not(.ios) .stc b, body:not(.ios) .hero b { color: #fff6e0 !important; }
+  body:not(.ios) .chip, body:not(.ios) .chip[data-f] { color: #f4ead2; }
+  body:not(.ios) .av { color: #f0d078 !important; background: rgba(212,175,55,.22) !important; }
+  body:not(.ios) #tplList .card > div:nth-child(1) { color: #f0d078 !important; }
+  body:not(.ios) #tplList .card > div:nth-child(2) { color: #d9cfae !important; }
+  body:not(.ios) #tplList .card > div:nth-child(3) { color: #fff6e0 !important; }
+  body:not(.ios) .d1 { color: #f0d078; } body:not(.ios) .d2, body:not(.ios) .d3 { color: #f1e4bd; }
+  /* আইওএস থিম: নীল কার্ডে সবই সাদা, নিচে নেভি + অ্যাকসেন্ট */
+  body.ios .d1, body.ios .d2, body.ios .d3, body.ios .dsep { color: #fff; }
+  body.ios .d1 { font-weight: 700; } body.ios .d2, body.ios .d3 { opacity: .92; }
+  body.ios .stc small, body.ios .hero small, body.ios .mid .sub, body.ios .hint { color: #6b7a99 !important; }
+  body.ios .chip[data-f] { color: #4b5878; } body.ios .chip.on { color: #fff !important; }
+
+  /* ===== অ্যাপের বর্ডার (সেটিং থেকে রং বাছা যায়) ===== */
+  .app { border-top: var(--bw, 0px) solid var(--bc, transparent); border-left: var(--bw, 0px) solid var(--bc, transparent); border-right: var(--bw, 0px) solid var(--bc, transparent); }
+  nav { border-left: var(--bw, 0px) solid var(--bc, transparent) !important; border-right: var(--bw, 0px) solid var(--bc, transparent) !important; }
+  .bdots { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; }
+  .bnone { flex: none; padding: 6px 14px; font-size: 13px; }
+
+  /* ===== প্রিমিয়াম ফিনিশ ===== */
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { font-family: 'Hind Siliguri', 'Noto Sans Bengali', 'Kalpurush', 'SolaimanLipi', system-ui, -apple-system, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overscroll-behavior-y: none; line-height: 1.5; }
+  ::selection { background: rgba(255,138,31,.28); }
+  button, .in { font-family: inherit; touch-action: manipulation; }
+  button { cursor: pointer; transition: transform .15s ease, opacity .15s ease, box-shadow .2s ease, background .2s ease, color .2s ease; }
+  button:active { transform: scale(.96); }
+  .app { padding-top: max(18px, env(safe-area-inset-top)); }
+  nav { padding-bottom: max(14px, env(safe-area-inset-bottom)) !important; }
+  nav button { min-height: 48px; justify-content: center; transition: color .2s ease; }
+  nav button svg { transition: transform .2s ease; }
+  nav button.on { font-weight: 600; }
+  nav button.on svg { transform: translateY(-2px) scale(1.1); }
+  .fab { bottom: calc(86px + env(safe-area-inset-bottom)); }
+  #toast { bottom: calc(96px + env(safe-area-inset-bottom)); border-radius: 16px; box-shadow: 0 12px 30px rgba(0,0,0,.3); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  .sec.on { animation: secIn .35s ease both; }
+  @keyframes secIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .in { transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+  .in:focus { box-shadow: 0 0 0 4px rgba(240,208,120,.18); }
+  .glass { box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 10px 30px rgba(0,0,0,.28); }
+  .item { transition: transform .15s ease; }
+  .item:active { transform: scale(.99); }
+  .st { font-weight: 600; letter-spacing: .2px; }
+  .xb { width: 32px; height: 32px; }
+  .chip { min-height: 34px; transition: all .2s ease; }
+  .pvb::-webkit-scrollbar { width: 6px; }
+  .pvb::-webkit-scrollbar-thumb { background: rgba(120,130,160,.4); border-radius: 6px; }
+
+  body.ios .glass { border-radius: 24px; box-shadow: inset 0 1px 0 #fff, 0 12px 28px rgba(30,50,100,.16), 0 2px 6px rgba(30,50,100,.08); }
+  body.ios .top { box-shadow: 0 16px 36px rgba(30,60,140,.32), inset 0 0 0 1px rgba(255,255,255,.22); }
+  body.ios .in:focus { background: #fff; box-shadow: 0 0 0 4px var(--acs); }
+  body.ios .btn, body.ios .addb, body.ios .all { box-shadow: 0 8px 18px rgba(20,40,100,.25); }
+  body.ios .empty { color: #34435f !important; font-weight: 500; }
+  body.ios .app > .date { color: #26344f; }
+  body.ios nav { box-shadow: 0 -8px 24px rgba(30,50,100,.12); }
+  @media (max-width: 360px) { body.ios .ttl { font-size: 29px; } .stc b { font-size: 18px; } }
+  @media (prefers-reduced-motion: reduce) { .sec.on { animation: none; } html { scroll-behavior: auto; } }
+
+  /* ===== আজকের সীমা: ০/৩০ প্রগ্রেস লাইন ===== */
+  .hero .txt { flex: 1; min-width: 0; }
+  .plim { margin-top: 10px; }
+  .plim .pltx { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: #f0d078; }
+  .plim .plbar { height: 8px; border-radius: 8px; background: rgba(255,255,255,.16); overflow: hidden; }
+  .plim .plbar i { display: block; height: 100%; width: 0; border-radius: 8px; background: linear-gradient(90deg, #b8860b, #f0d078); transition: width .5s ease; }
+  .plim.full .plbar i { background: linear-gradient(90deg, #ff8a1f, #ef4444); }
+  body.ios .plim .pltx { color: var(--ac1); }
+  body.ios .plim .plbar { background: #e6ebf5; }
+  body.ios .plim .plbar i { background: linear-gradient(90deg, var(--ac2), var(--ac1)); }
+  body.ios .plim.full .plbar i { background: linear-gradient(90deg, #ff9a3c, #ff3b5c); }
+
+  /* নিচের মেনুর "পাঠান" লেখা একটু নিচে/পেছনে */
+  nav button { justify-content: flex-start !important; padding-top: 6px !important; }
+  nav #n-send { gap: 9px; }
+
+  /* ===== লাইন গ্রাফ ইন্ডিকেটর ===== */
+  .ch-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .ch-head h3 { margin: 0; } .ch-head small { font-size: 13px; font-weight: 600; color: #f0d078; }
+  #chSvg { display: block; overflow: visible; }
+  .ch-s1 { stop-color: #f0d078; stop-opacity: .35; } .ch-s2 { stop-color: #f0d078; stop-opacity: .02; }
+  .ch-line { stroke: #f0d078; } .ch-dot { fill: #f0d078; } .ch-lim { stroke: rgba(255,255,255,.55); }
+  .ch-foot { display: flex; justify-content: space-between; font-size: 11px; color: #d9cfae; margin-top: 6px; }
+  body.ios .ch-head small { color: var(--ac1); } body.ios .ch-foot { color: #6b7a99; }
+  body.ios .ch-s1 { stop-color: var(--ac1); stop-opacity: .22; } body.ios .ch-s2 { stop-color: var(--ac1); stop-opacity: .02; }
+  body.ios .ch-line { stroke: var(--ac1); } body.ios .ch-dot { fill: var(--ac1); } body.ios .ch-lim { stroke: #6b7a99; }
+
+  /* ===== তিন প্রিমিয়াম রঙিন বাটন ===== */
+  .stats3 .stc.gx { border: 0; cursor: pointer; text-align: center; padding: 16px 6px; min-height: 104px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .stats3 .stc.gx::after { content: ''; position: absolute; inset: 0 0 52% 0; background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0)); pointer-events: none; }
+  body .stats3 .stc.g-ok { background: linear-gradient(145deg, #3ddc84, #0f9d58) !important; box-shadow: 0 12px 24px rgba(15,157,88,.38), inset 0 1px 0 rgba(255,255,255,.5) !important; }
+  body .stats3 .stc.g-bad { background: linear-gradient(145deg, #ff7a7a, #e0244a) !important; box-shadow: 0 12px 24px rgba(224,36,74,.38), inset 0 1px 0 rgba(255,255,255,.5) !important; }
+  body .stats3 .stc.g-chk { background: linear-gradient(145deg, #7b8cff, #3a4fe0) !important; box-shadow: 0 12px 24px rgba(58,79,224,.4), inset 0 1px 0 rgba(255,255,255,.5) !important; }
+  body .stats3 .stc.gx small, body .stats3 .stc.gx b { color: #fff !important; position: relative; z-index: 1; }
+  body .stats3 .stc.gx small { font-size: 12.5px; font-weight: 500; opacity: .95; margin-bottom: 6px; }
+  body .stats3 .stc.gx b { font-size: 30px; font-weight: 800; text-shadow: 0 2px 6px rgba(0,0,0,.18); }
+
+  /* ===== বাটনের লেখা: কালো ও বোল্ড ===== */
+  body .stats3 .stc.gx small, body .stats3 .stc.gx b { color: #000 !important; text-shadow: 0 1px 0 rgba(255,255,255,.35) !important; }
+  body .stats3 .stc.gx small { font-weight: 800 !important; opacity: 1 !important; }
+  body .stats3 .stc.gx b { font-weight: 900 !important; }
+
+  /* ===== পাঠানো গ্রাফ: ডিজিটাল নিয়ন কালারিং ===== */
+  body .glass#anCard { background: linear-gradient(160deg, #050a1c, #0a1530) !important; border: 1px solid rgba(0,240,255,.4) !important; box-shadow: 0 0 26px rgba(0,240,255,.2), inset 0 0 30px rgba(0,240,255,.06) !important; }
+  body #anCard .ch-head h3 { color: #e8ffff !important; letter-spacing: .3px; }
+  body #anCard .ch-head small { color: #39ff88 !important; font-variant-numeric: tabular-nums; text-shadow: 0 0 8px rgba(57,255,136,.7); }
+  body #anCard .ch-foot { color: #6fd9e8 !important; }
+  body #anCard .ch-grid line { stroke: rgba(0,240,255,.14); stroke-width: 1; }
+  body #anCard .ch-s1 { stop-color: #00f0ff; stop-opacity: .38; } body #anCard .ch-s2 { stop-color: #00f0ff; stop-opacity: .01; }
+  body #anCard .ch-line { stroke: url(#chL); filter: drop-shadow(0 0 4px rgba(0,240,255,.9)); }
+  body #anCard .ch-lim { stroke: #ffd400; opacity: .85; }
+  body #anCard .ch-dot { fill: #39ff88; stroke: #04101f; filter: drop-shadow(0 0 7px #39ff88); }
+
+  /* ===== নোটিফিকেশন বেল: উপরে ডান পাশে ===== */
+  .top .bellbtn { position: absolute; top: 50%; right: 54px; transform: translateY(-50%); grid-column: auto; grid-row: auto; z-index: 3; }
+  .bellbtn .bdg { position: absolute; top: 7px; right: 8px; width: 9px; height: 9px; border-radius: 50%; background: #ff3b5c; border: 1.5px solid #14120c; display: none; }
+  .bellbtn.has .bdg { display: block; }
+  body.ios .top .bellbtn { display: flex; top: 14px; right: 14px; transform: none; background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.5); }
+  body.ios .bellbtn svg { stroke: #fff; }
+  body.ios .bellbtn .bdg { border-color: #fff; }
+
+  /* সোনালি থিমে বেল ঠিক সেটিং বাটনের পাশে, একই সারিতে */
+  body:not(.ios) .top .ibtn { justify-self: end; }
+  body:not(.ios) .top .bellbtn { position: relative; top: auto; right: auto; grid-column: 2; grid-row: 1 / 4; transform: translateX(-52px); }
+</style>
+</head>
+<body>
+<div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
+
+<div class="app">
+  <div class="top">
+    <div class="hi">স্বাগতম</div>
+    <div class="date" id="dateTxt"></div>
+    <button class="ibtn bellbtn" id="bellBtn" onclick="showNotif()" aria-label="নোটিফিকেশন">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <i class="bdg" id="bellBdg"></i>
+    </button>
+    <button class="ibtn" onclick="show('set')" aria-label="সেটিং">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+    </button>
+    <div class="ttl"><img src="data:image/png;base64,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" width="34" height="34" alt="" style="vertical-align:middle;margin-right:9px;border-radius:9px;box-shadow:0 2px 8px rgba(0,0,0,.25)">Gmail Bulk Tool</div>
+    <div class="chipset" onclick="show('set')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>EmailJS সেটিং<i class="keydot" id="keyDot"></i></div>
+    <svg class="topenv" onclick="openAddr()" viewBox="0 0 300 210" xmlns="http://www.w3.org/2000/svg" aria-label="ঠিকানা যোগ করুন"><g transform="rotate(-3 150 120)"><rect x="20" y="40" width="260" height="170" rx="28" fill="rgba(255,255,255,.16)" stroke="#ffffff" stroke-width="4"/><path d="M34 74 L150 156 L266 74" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+    <div class="tap2">খামে চাপলে ঠিকানা যোগ হবে</div>
+  </div>
+
+  <!-- হোম পেজ -->
+  <div class="sec on" id="sec-home">
+    <div class="glass card" id="anCard">
+      <div class="ch-head"><h3>পাঠানোর গ্রাফ</h3><small id="chSub"></small></div>
+      <svg id="chSvg" viewBox="0 0 320 130" width="100%" aria-label="গত ৩০ দিনের পাঠানো">
+        <defs><linearGradient id="chL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#00f0ff"/><stop offset=".55" stop-color="#39ff88"/><stop offset="1" stop-color="#d4ff3a"/></linearGradient><linearGradient id="chG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="ch-s1"/><stop offset="1" class="ch-s2"/></linearGradient></defs>
+        <g class="ch-grid"><line x1="0" x2="320" y1="35" y2="35"/><line x1="0" x2="320" y1="70" y2="70"/><line x1="0" x2="320" y1="105" y2="105"/><line y1="0" y2="130" x1="80" x2="80"/><line y1="0" y2="130" x1="160" x2="160"/><line y1="0" y2="130" x1="240" x2="240"/></g>
+        <path id="chArea" fill="url(#chG)" d=""/>
+        <line id="chLim" x1="0" x2="320" class="ch-lim" stroke-width="1.6" stroke-dasharray="5 4"/>
+        <path id="chLine" class="ch-line" fill="none" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" d=""/>
+        <circle id="chDot" r="5.5" class="ch-dot" stroke="#fff" stroke-width="2"/>
+      </svg>
+      <div class="ch-foot"><span>৩০ দিন আগে</span><span>আজ</span></div>
+    </div>
+    <div class="glass hero" style="display:none">
+      <svg class="wm env" onclick="openAddr()" width="170" height="120" viewBox="-70 -50 140 100"><rect x="-60" y="-40" width="120" height="80" rx="10" fill="none" stroke="#d4af37" stroke-width="2"/><path d="M-60,-28 L0,14 L60,-28" fill="none" stroke="#d4af37" stroke-width="2"/></svg>
+      <svg width="88" height="88" viewBox="0 0 84 84" style="flex-shrink:0;position:relative;">
+        <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0d078"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs>
+        <circle cx="42" cy="42" r="34" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="6"/>
+        <circle id="ring" cx="42" cy="42" r="34" fill="none" stroke="url(#rg)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 214" transform="rotate(-90 42 42)"/>
+        <text id="ringTxt" x="42" y="47" text-anchor="middle" font-size="15" fill="#f8efd6" font-weight="600">০/০</text>
+      </svg>
+      <div class="txt">
+        
+        <b id="hSent">০টি পাঠানো হয়েছে</b>
+        <span class="left" id="hLeft">বাকি আছে ০টি</span>
+        <div class="tap">ঠিকানা যোগ করতে খামে চাপুন ›</div>
+        <div class="day" id="hDay"></div>
+      </div>
+    </div>
+
+    <div class="stats3">
+      <button class="glass stc gx g-ok" onclick="show('hist')"><small>মোট পাঠানো</small><b id="stAll">০</b></button>
+      <button class="glass stc gx g-bad" onclick="copyFail()"><small>বাতিল ইমেল</small><b id="stFail">০</b></button>
+      <button class="glass stc gx g-chk" onclick="checkSend()"><small>সেন্ড ইমেল চেক</small><b id="stChk">চেক</b></button>
+    </div>
+
+    <div class="glass card">
+      <h3>সর্বশেষ পাঠানো</h3>
+      <div id="hmRecent"></div>
+    </div>
+
+    <div class="glass card help">
+      <h3>নিরাপদে পাঠানোর টিপস</h3>
+      • দিনে ৩০–৫০টির বেশি পাঠাবেন না<br>
+      • <code>{name}</code> দিয়ে প্রতিটা মেইলে আলাদা নাম বসান<br>
+      • শেষে "আগ্রহী না হলে জানাবেন" লাইন রাখুন
+    </div>
+  </div>
+
+  <!-- পাঠানো পেজ -->
+  <div class="sec" id="sec-send">
+    <div class="glass hero">
+      <svg class="wm env" onclick="openAddr()" width="170" height="120" viewBox="-70 -50 140 100"><rect x="-60" y="-40" width="120" height="80" rx="10" fill="none" stroke="#d4af37" stroke-width="2"/><path d="M-60,-28 L0,14 L60,-28" fill="none" stroke="#d4af37" stroke-width="2"/></svg>
+      <svg width="88" height="88" viewBox="0 0 84 84" style="flex-shrink:0;position:relative;">
+        <defs><linearGradient id="rg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0d078"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs>
+        <circle cx="42" cy="42" r="34" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="6"/>
+        <circle id="hmRing" cx="42" cy="42" r="34" fill="none" stroke="url(#rg2)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 214" transform="rotate(-90 42 42)"/>
+        <text id="hmRingTxt" x="42" y="47" text-anchor="middle" font-size="15" fill="#f8efd6" font-weight="600">০/০</text>
+      </svg>
+      <div class="txt">
+        <small>আজকের লক্ষ্য</small>
+        <b id="hmToday">০টি আজ পাঠানো হয়েছে</b>
+        <span class="left" id="hmLeft"></span>
+        <div class="tap">ঠিকানা যোগ করতে খামে চাপুন ›</div>
+      </div>
+    </div>
+
+    <div class="stats3">
+      <div class="glass stc"><small class="c-gold">মোট ঠিকানা</small><b id="sTot">০</b></div>
+      <div class="glass stc"><small class="c-aqua">পাঠানো হয়েছে</small><b id="sSent">০</b></div>
+      <div class="glass stc"><small class="c-rose">বাকি</small><b id="sLeft">০</b></div>
+    </div>
+
+    <div class="glass card">
+      <div class="lblrow"><label class="f c-gold">ঠিকানা</label><span class="cnt" id="addrCnt">০টি যুক্ত</span></div>
+      <button class="ghost" style="width:100%" onclick="openAddr()">+ ঠিকানা যোগ করুন</button>
+
+      <label class="f c-aqua">Subject</label>
+      <input class="in" id="subject" placeholder="মেইলের বিষয়">
+
+      <div class="lblrow"><label class="f c-rose">Message</label><span class="cnt" id="cnt">০ অক্ষর</span></div>
+      <textarea class="in" id="message" placeholder="Hi {name},&#10;..."></textarea>
+      <div class="hint">মেসেজে <code>{name}</code> লিখলে প্রতিটা মেইলে সেই ঠিকানার নাম বসবে (নাম না দিলে "Team")</div>
+
+      <button class="ghost" style="width:100%;margin-top:14px" onclick="show('tpl')">সেভ করা টেমপ্লেট থেকে নিন</button>
+      <div class="tools"><button class="ghost" onclick="showPreview()">প্রিভিউ দেখুন</button><button class="ghost" onclick="saveTpl()">টেমপ্লেট সেভ</button></div>
+
+      
+    </div>
+
+    <div class="glass card" id="prev" style="display:none">
+      <div class="ph"><h3 style="margin:0">প্রিভিউ</h3><button class="mini" onclick="document.getElementById('prev').style.display='none'">বন্ধ</button></div>
+      <div class="hint">কাকে: <span id="pvTo"></span></div>
+      <div class="pvs" id="pvSub"></div>
+      <div class="pvb" id="pvBody"></div>
+    </div>
+
+    <div class="bar">
+      <div class="chips" id="chips">
+        <button class="chip on" data-f="all">সব</button>
+        <button class="chip" data-f="idle">বাকি</button>
+        <button class="chip" data-f="sent">পাঠানো</button>
+        <button class="chip" data-f="fail">ফেল</button>
+        <button class="chip" onclick="copyFail()">ফেল কপি</button>
+        <button class="chip" onclick="clearList()">লিস্ট খালি</button>
+      </div>
+      <button class="all" id="allBtn" onclick="toggleAll()">সবগুলো পাঠান</button>
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <!-- টেমপ্লেট পেজ -->
+  <div class="sec" id="sec-tpl">
+    <div class="glass card">
+      <h3>নতুন টেমপ্লেট</h3>
+      <label class="f c-gold">টেমপ্লেটের নাম</label>
+      <input class="in" id="tn" placeholder="যেমন: অ্যাপ অফার ১">
+      <label class="f c-aqua">Subject</label>
+      <input class="in" id="ts" placeholder="মেইলের বিষয়">
+      <label class="f c-rose">Message</label>
+      <textarea class="in" id="tm" placeholder="Hi {name},&#10;..."></textarea>
+      <button class="btn" onclick="addTplFromForm()">টেমপ্লেট সেভ করুন</button>
+    </div>
+    <div id="tplList"></div>
+  </div>
+
+  <!-- ইতিহাস পেজ -->
+  <div class="sec" id="sec-hist">
+    <div class="glass card">
+      <h3>পাঠানোর ইতিহাস</h3>
+      <input class="in" id="hq" placeholder="ঠিকানা খুঁজুন" oninput="renderHist()">
+      <div class="hint" id="hCount"></div>
+      <div id="histList" style="margin-top:10px"></div>
+      <button class="btn" onclick="copyHist()">সব ঠিকানা কপি করুন</button>
+      <button class="btn danger" onclick="clearHist()">ইতিহাস মুছুন</button>
+    </div>
+  </div>
+
+  <!-- সেটিং পেজ -->
+  <div class="sec" id="sec-set">
+    <div class="glass card">
+      <h3>থিম</h3>
+      <div class="tools" style="margin-top:0">
+        <button class="ghost" id="thGold" onclick="setTheme('gold')">গোল্ড গ্লাস</button>
+        <button class="ghost" id="thIos" onclick="setTheme('ios')">আইওএস লাইট</button>
+      </div>
+      <div class="dots" id="dots"></div>
+      <div class="hint">রঙের গোল বাটন চাপলে আইওএস লাইট থিমের রং বদলাবে</div>
+    </div>
+    <div class="glass card">
+      <h3>বর্ডার</h3>
+      <div class="bdots" id="bdots"></div>
+      <div class="hint">সাতটি রঙের একটি চাপলে অ্যাপের দুই পাশে ও উপরে সেই রঙের বর্ডার বসবে</div>
+    </div>
+    <div class="glass card">
+      <h3>EmailJS সেটিং</h3>
+      <label class="f">Service ID</label>
+      <input class="in" id="sid" placeholder="service_xxxxxxx">
+      <label class="f">Template ID</label>
+      <input class="in" id="tid" placeholder="template_xxxxxxx">
+      <label class="f">Public Key</label>
+      <input class="in" id="pkey" placeholder="আপনার public key">
+      <label class="f">দুই মেইলের মাঝে বিরতি (সেকেন্ড)</label>
+      <input class="in" id="delay" type="number" min="1" value="8">
+      <label class="f">দিনে সর্বোচ্চ কতটা মেইল</label>
+      <input class="in" id="limit" type="number" min="1" value="30">
+      <button class="btn" onclick="saveSettings()">সেভ করুন</button>
+    </div>
+    <div class="glass card help">
+      <h3>EmailJS Template-এ যা বসাতে হবে</h3>
+      To Email ঘরে <code>{{to_email}}</code><br>
+      Subject ঘরে <code>{{subject}}</code><br>
+      Content ঘরে <code>{{message}}</code>
+    </div>
+  </div>
+</div>
+
+<div id="addr" class="modal">
+  <div class="sheet">
+    <div class="ph"><h3 style="margin:0">ঠিকানা (প্রতি লাইনে একটা জিমেইল)</h3><button class="xb" onclick="closeAddr()">×</button></div>
+    <textarea class="in" id="emails" style="margin-top:12px;min-height:150px" placeholder="example1@gmail.com&#10;example2@gmail.com, নাম"></textarea>
+    <div class="hint">নাম দিতে চাইলে এভাবে লিখুন: <code>ইমেইল, নাম</code></div>
+    <div class="mrow"><button class="ghost" onclick="pasteClip()">পেস্ট</button><button class="addb" onclick="addToList()">+ লিস্টে যুক্ত করুন</button></div>
+  </div>
+</div>
+
+<nav>
+  <button id="n-home" class="on" onclick="show('home')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>হোম
+  </button>
+  <button id="n-send" onclick="show('send')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 8l9 6 9-6"/></svg>পাঠান
+  </button>
+  <button id="n-tpl" onclick="show('tpl')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>টেমপ্লেট
+  </button>
+  <button id="n-hist" onclick="show('hist')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>ইতিহাস
+  </button>
+  <button id="n-set" onclick="show('set')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>সেটিং
+  </button>
+</nav>
+<button id="fab" class="fab" onclick="toggleAll()"><b id="fabT">সবাইকে পাঠান</b><small id="fabS">একে একে স্বয়ংক্রিয়ভাবে</small></button>
+<div id="toast"></div>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+  var PAL = [['#f0d078','rgba(240,208,120,.2)'],['#8fe3df','rgba(143,227,223,.2)'],['#ffa6cf','rgba(255,166,207,.2)'],['#c9baff','rgba(201,186,255,.2)'],['#ffb46b','rgba(255,180,107,.2)']];
+  var items = [];
+  var filter = 'all';
+  var running = false;
+  var stopFlag = false;
+
+  function bn(n) { return String(n).replace(/\d/g, function (d) { return '০১২৩৪৫৬৭৮৯'[d]; }); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function getJSON(k, d) { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } }
+
+  var tt;
+  function toast(m) {
+    var t = $('toast');
+    t.textContent = m;
+    t.style.display = 'block';
+    clearTimeout(tt);
+    tt = setTimeout(function () { t.style.display = 'none'; }, 3000);
+  }
+
+  function show(name) {
+    var names = ['home', 'send', 'tpl', 'hist', 'set'];
+    for (var i = 0; i < names.length; i++) {
+      $('sec-' + names[i]).className = 'sec' + (names[i] === name ? ' on' : '');
+      $('n-' + names[i]).className = (names[i] === name ? 'on' : '');
+    }
+    if (name === 'hist') renderHist();
+    if (name === 'home') renderHome();
+    if (name === 'tpl') renderTplPage();
+    document.body.classList.toggle('cp', name === 'tpl' || name === 'hist' || name === 'set');
+    syncFab();
+    window.scrollTo(0, 0);
+  }
+
+  /* ---- সেটিং ---- */
+  function cfg() {
+    return {
+      sid: localStorage.getItem('sid') || '',
+      tid: localStorage.getItem('tid') || '',
+      pkey: localStorage.getItem('pkey') || '',
+      delay: Number(localStorage.getItem('delay')) || 8,
+      limit: Number(localStorage.getItem('limit')) || 30
+    };
+  }
+  function loadSettings() {
+    var c = cfg();
+    $('sid').value = c.sid; $('tid').value = c.tid; $('pkey').value = c.pkey;
+    $('delay').value = c.delay; $('limit').value = c.limit;
+  }
+  function saveSettings() {
+    localStorage.setItem('sid', $('sid').value.trim());
+    localStorage.setItem('tid', $('tid').value.trim());
+    localStorage.setItem('pkey', $('pkey').value.trim());
+    localStorage.setItem('delay', $('delay').value || 8);
+    localStorage.setItem('limit', $('limit').value || 30);
+    toast('সেটিং সেভ হয়েছে');
+    updateHero();
+  }
+
+  /* ---- খসড়া নিজে নিজে সেভ ---- */
+  function saveDraft() {
+    localStorage.setItem('draft', JSON.stringify({
+      emails: $('emails').value, subject: $('subject').value, message: $('message').value
+    }));
+  }
+  function loadDraft() {
+    var d = getJSON('draft', null);
+    if (!d) return;
+    $('emails').value = d.emails || '';
+    $('subject').value = d.subject || '';
+    $('message').value = d.message || '';
+  }
+
+  /* ---- আজকের গণনা ---- */
+  function dayKey() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  function todayCount() { return localStorage.getItem('dayKey') === dayKey() ? Number(localStorage.getItem('dayCount') || 0) : 0; }
+  function incToday() { localStorage.setItem('dayKey', dayKey()); localStorage.setItem('dayCount', todayCount() + 1); }
+
+  /* ---- লিস্ট তৈরি ---- */
+  function addToList() {
+    var lines = $('emails').value.split('\n');
+    var subject = $('subject').value.trim().toLowerCase();
+    var hist = getJSON('hist', []);
+    var done = {};
+    for (var h = 0; h < hist.length; h++) done[hist[h].email + '|' + hist[h].subject] = true;
+
+    var seen = {};
+    for (var k = 0; k < items.length; k++) seen[items[k].email] = true;
+    var added = 0, bad = 0, dup = 0;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line) continue;
+      var p = line.indexOf(',');
+      var mail = (p === -1 ? line : line.slice(0, p)).trim().toLowerCase();
+      var name = p === -1 ? '' : line.slice(p + 1).trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { bad++; continue; }
+      if (seen[mail]) { dup++; continue; }
+      seen[mail] = true;
+      var already = !!done[mail + '|' + subject];
+      items.push({ email: mail, name: name, status: already ? 'sent' : 'idle', note: already ? 'আগেই পাঠানো হয়েছে' : '', pre: already });
+      added++;
+    }
+    if (!added && !bad && !dup) { toast('আগে ঠিকানা লিখুন বা পেস্ট করুন'); return; }
+    $('emails').value = '';
+    saveDraft();
+    closeAddr();
+    render();
+    show('send');
+    var msg = bn(added) + 'টি ঠিকানা যুক্ত হয়েছে';
+    if (bad) msg += ', ' + bn(bad) + 'টি ভুল বাদ';
+    if (dup) msg += ', ' + bn(dup) + 'টি ডুপ্লিকেট বাদ';
+    toast(msg);
+  }
+
+  function clearList() {
+    if (running) return;
+    items = [];
+    render();
+    toast('লিস্ট খালি করা হয়েছে');
+  }
+
+  function openAddr() {
+    $('addr').className = 'modal on';
+    setTimeout(function () { $('emails').focus(); }, 120);
+  }
+  function closeAddr() { $('addr').className = 'modal'; }
+  $('addr').addEventListener('click', function (e) { if (e.target === $('addr')) closeAddr(); });
+
+    function bnCount(n) { return bn(n); }
+
+  /* ---- দেখানো ---- */
+  function counts() {
+    var c = { sent: 0, idle: 0, fail: 0, total: items.length };
+    for (var i = 0; i < items.length; i++) {
+      var s = items[i].status;
+      if (s === 'sent') c.sent++;
+      else if (s === 'fail') c.fail++;
+      else c.idle++;
+    }
+    return c;
+  }
+
+  function updateHero() {
+    updateLimit();
+    renderAnalysis();
+    var c = counts();
+    var frac = c.total ? c.sent / c.total : 0;
+    $('ring').setAttribute('stroke-dasharray', (frac * 213.6) + ' 214');
+    var isIos = document.body.classList.contains('ios');
+    $('ringTxt').textContent = isIos ? bn(Math.round(frac * 100)) + '%' : bn(c.sent) + '/' + bn(c.total);
+    $('hSent').textContent = isIos ? 'পাঠানোর অগ্রগতি' : bn(c.sent) + 'টি পাঠানো হয়েছে';
+    if (isIos) $('hLeft').textContent = c.total ? bn(c.sent) + 'টি পাঠানো হয়েছে • বাকি ' + bn(c.idle) + 'টি' + (c.fail ? ' • ফেল ' + bn(c.fail) + 'টি' : '') : 'ঠিকানা যুক্ত করে শুরু করুন';
+    else $('hLeft').textContent = 'বাকি আছে ' + bn(c.idle) + 'টি' + (c.fail ? ' • ফেল ' + bn(c.fail) + 'টি' : '');
+    var est = c.idle * cfg().delay;
+    var dt = 'আজ পাঠানো ' + bn(todayCount()) + '/' + bn(cfg().limit);
+    if (c.idle) dt += ' • সব পাঠাতে প্রায় ' + (est >= 60 ? bn(Math.ceil(est / 60)) + ' মিনিট' : bn(est) + ' সেকেন্ড');
+    $('hDay').textContent = dt;
+    $('addrCnt').textContent = bn(items.length) + 'টি যুক্ত';
+    $('sTot').textContent = bn(c.total);
+    $('sSent').textContent = bn(c.sent);
+    $('sLeft').textContent = bn(c.idle);
+    updateKeyDot();
+    syncFab();
+    renderHome();
+  }
+
+  function render() {
+    var list = $('list');
+    list.innerHTML = '';
+    var shown = 0;
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      var grp = it.status === 'sent' ? 'sent' : (it.status === 'fail' ? 'fail' : 'idle');
+      if (filter !== 'all' && filter !== grp) continue;
+      shown++;
+
+      var row = document.createElement('div');
+      row.className = 'glass item';
+
+      var av = document.createElement('div');
+      av.className = 'av';
+      av.textContent = (it.name || it.email).charAt(0).toUpperCase();
+      var pal = PAL[i % PAL.length];
+      av.style.color = pal[0];
+      av.style.background = pal[1];
+
+      var mid = document.createElement('div');
+      mid.className = 'mid';
+      var em = document.createElement('div');
+      em.className = 'em';
+      em.textContent = bn(i + 1) + '. ' + it.email;
+      var sub = document.createElement('div');
+      sub.className = 'sub';
+      sub.textContent = it.note || it.name || '';
+      mid.appendChild(em);
+      if (sub.textContent) mid.appendChild(sub);
+
+      var b = document.createElement('button');
+      b.setAttribute('data-i', i);
+      if (it.status === 'sent') { b.className = 'st ok'; b.textContent = '✓ Sent'; b.disabled = true; }
+      else if (it.status === 'sending') { b.className = 'st wait'; b.textContent = '...'; b.disabled = true; }
+      else if (it.status === 'fail') { b.className = 'st bad'; b.textContent = 'আবার'; }
+      else { b.className = 'st'; b.textContent = 'Send'; }
+
+      row.appendChild(av);
+      row.appendChild(mid);
+      row.appendChild(b);
+      var x = document.createElement('button');
+      x.className = 'xb';
+      x.setAttribute('data-x', i);
+      x.setAttribute('aria-label', 'বাদ দিন');
+      x.textContent = '×';
+      row.appendChild(x);
+      list.appendChild(row);
+    }
+    if (!shown) {
+      var e = document.createElement('div');
+      e.className = 'empty';
+      e.textContent = items.length ? 'এই ফিল্টারে কিছু নেই' : 'ঠিকানা পেস্ট করে "লিস্ট তৈরি করুন" চাপুন';
+      list.appendChild(e);
+    }
+    updateHero();
+  }
+
+  /* ---- পাঠানো ---- */
+  async function sendItem(i) {
+    var it = items[i];
+    var c = cfg();
+    var subject = $('subject').value.trim();
+    var msg = $('message').value.trim();
+
+    if (!c.sid || !c.tid || !c.pkey) { toast('আগে সেটিং-এ EmailJS-এর ৩টা কী সেভ করুন'); show('set'); return 'stop'; }
+    if (!subject || !msg) { toast('Subject ও Message লিখুন'); return 'stop'; }
+    if (todayCount() >= c.limit) { toast('আজকের সীমা শেষ (' + bn(c.limit) + 'টি)। সেটিং-এ বাড়াতে পারেন'); return 'stop'; }
+
+    var nm = it.name || 'Team';
+    var finalSubject = subject.split('{name}').join(nm);
+    var finalMsg = msg.split('{name}').join(nm);
+
+    it.status = 'sending';
+    render();
+    try {
+      var res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: c.sid, template_id: c.tid, user_id: c.pkey,
+          template_params: { to_email: it.email, subject: finalSubject, message: finalMsg, name: nm }
+        })
+      });
+      if (res.ok) {
+        it.status = 'sent';
+        it.note = '';
+        var hist = getJSON('hist', []);
+        hist.push({ email: it.email, subject: subject.toLowerCase(), time: Date.now() });
+        localStorage.setItem('hist', JSON.stringify(hist));
+        incToday();
+        render();
+        return 'ok';
+      }
+      var t = await res.text();
+      it.status = 'fail';
+      it.note = 'ফেল: ' + t.slice(0, 50);
+      render();
+      return 'fail';
+    } catch (e) {
+      it.status = 'fail';
+      it.note = 'নেট সমস্যা';
+      render();
+      return 'fail';
+    }
+  }
+
+  async function toggleAll() {
+    var btn = $('allBtn');
+    if (running) { stopFlag = true; toast('থামানো হচ্ছে...'); return; }
+    if (!items.length) { toast('আগে লিস্ট তৈরি করুন'); return; }
+    running = true;
+    stopFlag = false;
+    btn.textContent = 'থামান';
+    btn.className = 'all stop';
+    syncFab();
+
+    for (var i = 0; i < items.length; i++) {
+      if (stopFlag) break;
+      if (items[i].status === 'sent') continue;
+      var r = await sendItem(i);
+      if (r === 'stop') break;
+      var more = false;
+      for (var j = i + 1; j < items.length; j++) { if (items[j].status !== 'sent') { more = true; break; } }
+      if (more && !stopFlag) {
+        var d = cfg().delay;
+        toast('পরের মেইল ' + bn(d) + ' সেকেন্ড পরে');
+        await sleep(d * 1000);
+      }
+    }
+    running = false;
+    btn.textContent = 'সবগুলো পাঠান';
+    btn.className = 'all';
+    syncFab();
+    toast(stopFlag ? 'থামানো হয়েছে' : 'কাজ শেষ');
+  }
+
+  /* ---- ইতিহাস ---- */
+  function renderHist() {
+    var box = $('histList');
+    box.innerHTML = '';
+    var q = ($('hq').value || '').trim().toLowerCase();
+    var hist = getJSON('hist', []);
+    var shown = 0;
+    for (var i = hist.length - 1; i >= 0; i--) {
+      var h = hist[i];
+      if (q && h.email.indexOf(q) === -1) continue;
+      shown++;
+      var row = document.createElement('div');
+      row.className = 'glass item';
+      var av = document.createElement('div');
+      av.className = 'av';
+      av.textContent = h.email.charAt(0).toUpperCase();
+      var pal = PAL[shown % PAL.length];
+      av.style.color = pal[0];
+      av.style.background = pal[1];
+      var mid = document.createElement('div');
+      mid.className = 'mid';
+      var em = document.createElement('div');
+      em.className = 'em';
+      em.textContent = h.email;
+      var sub = document.createElement('div');
+      sub.className = 'sub';
+      sub.textContent = new Date(h.time).toLocaleString('bn-BD');
+      mid.appendChild(em);
+      mid.appendChild(sub);
+      row.appendChild(av);
+      row.appendChild(mid);
+      box.appendChild(row);
+    }
+    $('hCount').textContent = 'মোট ' + bn(hist.length) + 'টি' + (q ? ' • পাওয়া গেছে ' + bn(shown) + 'টি' : '');
+    if (!shown) box.innerHTML = '<div class="empty">' + (hist.length ? 'কিছু পাওয়া যায়নি' : 'এখনো কিছু পাঠানো হয়নি') + '</div>';
+  }
+
+  function copyHist() {
+    var hist = getJSON('hist', []);
+    var seen = {};
+    var out = [];
+    for (var i = 0; i < hist.length; i++) {
+      if (!seen[hist[i].email]) { seen[hist[i].email] = true; out.push(hist[i].email); }
+    }
+    if (!out.length) { toast('কপি করার মতো কিছু নেই'); return; }
+    copyText(out.join('\n')).then(function () { toast(bn(out.length) + 'টি ঠিকানা কপি হয়েছে'); }).catch(function () { toast('কপি হয়নি'); });
+  }
+
+    function clearHist() {
+    if (confirm('সব ইতিহাস মুছে ফেলবেন?')) {
+      localStorage.removeItem('hist');
+      renderHist();
+      toast('ইতিহাস মোছা হয়েছে');
+    }
+  }
+
+  /* ---- ইভেন্ট ---- */
+  $('list').addEventListener('click', function (e) {
+    if (running) return;
+    var x = e.target.closest('button[data-x]');
+    if (x) { items.splice(Number(x.getAttribute('data-x')), 1); render(); return; }
+    var b = e.target.closest('button[data-i]');
+    if (b) sendItem(Number(b.getAttribute('data-i')));
+  });
+  $('chips').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip');
+    if (!b || !b.getAttribute('data-f')) return;
+    filter = b.getAttribute('data-f');
+    var all = $('chips').querySelectorAll('.chip');
+    for (var i = 0; i < all.length; i++) all[i].className = 'chip' + (all[i] === b ? ' on' : '');
+    render();
+  });
+  $('emails').addEventListener('input', saveDraft);
+  $('subject').addEventListener('input', saveDraft);
+  $('message').addEventListener('input', saveDraft);
+
+  function copyText(t) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t);
+    var ta = document.createElement('textarea');
+    ta.value = t;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    return Promise.resolve();
+  }
+
+  function copyFail() {
+    var out = [];
+    for (var i = 0; i < items.length; i++) if (items[i].status === 'fail') out.push(items[i].name ? items[i].email + ', ' + items[i].name : items[i].email);
+    if (!out.length) { toast('কোনো ফেল ঠিকানা নেই'); return; }
+    copyText(out.join('\n')).then(function () { toast(bn(out.length) + 'টি ফেল ঠিকানা কপি হয়েছে'); }).catch(function () { toast('কপি হয়নি'); });
+  }
+
+  function pasteClip() {
+    if (!navigator.clipboard || !navigator.clipboard.readText) { toast('ঘরে চেপে ধরে পেস্ট করুন'); return; }
+    navigator.clipboard.readText().then(function (t) {
+      var cur = $('emails').value;
+      $('emails').value = cur ? cur.replace(/\s+$/, '') + '\n' + t : t;
+      saveDraft();
+      toast('পেস্ট হয়েছে');
+    }).catch(function () { toast('পেস্ট হয়নি, ঘরে চেপে ধরে পেস্ট করুন'); });
+  }
+
+  function updateCnt() { $('cnt').textContent = bn($('message').value.length) + ' অক্ষর'; }
+
+  function showPreview() {
+    var subject = $('subject').value.trim();
+    var msg = $('message').value.trim();
+    if (!subject && !msg) { toast('আগে Subject ও Message লিখুন'); return; }
+    var nm = (items.length && items[0].name) ? items[0].name : 'Team';
+    $('pvTo').textContent = items.length ? items[0].email : 'example@gmail.com';
+    $('pvSub').textContent = subject.split('{name}').join(nm);
+    $('pvBody').textContent = msg.split('{name}').join(nm);
+    $('prev').style.display = 'block';
+    $('prev').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function saveTpl() {
+    var subject = $('subject').value.trim();
+    var msg = $('message').value.trim();
+    if (!subject || !msg) { toast('Subject ও Message লিখুন'); return; }
+    var t = getJSON('tpls', []);
+    t.push({ name: subject.slice(0, 30), subject: subject, message: msg });
+    if (t.length > 20) t.shift();
+    localStorage.setItem('tpls', JSON.stringify(t));
+    renderTplPage();
+    renderHome();
+    toast('টেমপ্লেট সেভ হয়েছে');
+  }
+
+  function addTplFromForm() {
+    var subject = $('ts').value.trim();
+    var msg = $('tm').value.trim();
+    if (!subject || !msg) { toast('Subject ও Message লিখুন'); return; }
+    var name = $('tn').value.trim() || subject.slice(0, 30);
+    var t = getJSON('tpls', []);
+    t.push({ name: name, subject: subject, message: msg });
+    if (t.length > 20) t.shift();
+    localStorage.setItem('tpls', JSON.stringify(t));
+    $('tn').value = ''; $('ts').value = ''; $('tm').value = '';
+    renderTplPage();
+    renderHome();
+    toast('টেমপ্লেট সেভ হয়েছে');
+  }
+
+  function useTpl(i) {
+    var t = getJSON('tpls', [])[i];
+    if (!t) return;
+    $('subject').value = t.subject;
+    $('message').value = t.message;
+    saveDraft();
+    updateCnt();
+    show('send');
+    toast('টেমপ্লেট লোড হয়েছে');
+  }
+
+  function delTpl(i) {
+    var t = getJSON('tpls', []);
+    t.splice(i, 1);
+    localStorage.setItem('tpls', JSON.stringify(t));
+    renderTplPage();
+    renderHome();
+    toast('টেমপ্লেট মোছা হয়েছে');
+  }
+
+  function renderTplPage() {
+    var box = $('tplList');
+    box.innerHTML = '';
+    var t = getJSON('tpls', []);
+    if (!t.length) {
+      box.innerHTML = '<div class="empty">এখনো কোনো টেমপ্লেট নেই</div>';
+      return;
+    }
+    for (var i = t.length - 1; i >= 0; i--) {
+      (function (idx) {
+        var c = document.createElement('div');
+        c.className = 'glass card';
+        var n = document.createElement('div');
+        n.style.cssText = 'font-size:15px;font-weight:600;color:#f0d078;';
+        n.textContent = t[idx].name;
+        var sb = document.createElement('div');
+        sb.style.cssText = 'font-size:13px;color:#8fe3df;margin:4px 0;';
+        sb.textContent = t[idx].subject;
+        var bd = document.createElement('div');
+        bd.style.cssText = 'font-size:13px;color:#fff1d0;line-height:1.6;max-height:64px;overflow:hidden;white-space:pre-wrap;';
+        bd.textContent = t[idx].message;
+        var row = document.createElement('div');
+        row.className = 'tools';
+        var u = document.createElement('button');
+        u.className = 'all';
+        u.style.flex = '1';
+        u.textContent = 'ব্যবহার করুন';
+        u.onclick = function () { useTpl(idx); };
+        var d = document.createElement('button');
+        d.className = 'ghost';
+        d.textContent = 'মুছুন';
+        d.onclick = function () { delTpl(idx); };
+        row.appendChild(u);
+        row.appendChild(d);
+        c.appendChild(n);
+        c.appendChild(sb);
+        c.appendChild(bd);
+        c.appendChild(row);
+        box.appendChild(c);
+      })(i);
+    }
+  }
+
+  function renderHome() {
+    updateLimit();
+    renderAnalysis();
+    var c = cfg();
+    var today = todayCount();
+    var hist = getJSON('hist', []);
+    var tpls = getJSON('tpls', []);
+    var idle = 0;
+    for (var k = 0; k < items.length; k++) if (items[k].status !== 'sent') idle++;
+    $('hmRing').setAttribute('stroke-dasharray', (Math.min(today / c.limit, 1) * 213.6) + ' 214');
+    $('hmRingTxt').textContent = bn(today) + '/' + bn(c.limit);
+    $('hmToday').textContent = bn(today) + 'টি আজ পাঠানো হয়েছে';
+    $('hmLeft').textContent = 'আজ আরও ' + bn(Math.max(c.limit - today, 0)) + 'টি পাঠানো যাবে';
+    $('stAll').textContent = bn(hist.length);
+    var nf = 0; for (var q = 0; q < items.length; q++) if (items[q].status === 'fail') nf++;
+    $('stFail').textContent = bn(nf);
+
+    var box = $('hmRecent');
+    box.innerHTML = '';
+    if (!hist.length) {
+      box.innerHTML = '<div class="empty">এখনো কিছু পাঠানো হয়নি</div>';
+      return;
+    }
+    var n = 0;
+    for (var i = hist.length - 1; i >= 0 && n < 3; i--, n++) {
+      var h = hist[i];
+      var row = document.createElement('div');
+      row.className = 'glass item';
+      var av = document.createElement('div');
+      av.className = 'av';
+      av.textContent = h.email.charAt(0).toUpperCase();
+      var pal = PAL[n % PAL.length];
+      av.style.color = pal[0];
+      av.style.background = pal[1];
+      var mid = document.createElement('div');
+      mid.className = 'mid';
+      var em = document.createElement('div');
+      em.className = 'em';
+      em.textContent = h.email;
+      var sub = document.createElement('div');
+      sub.className = 'sub';
+      sub.textContent = new Date(h.time).toLocaleString('bn-BD');
+      mid.appendChild(em);
+      mid.appendChild(sub);
+      row.appendChild(av);
+      row.appendChild(mid);
+      box.appendChild(row);
+    }
+  }
+
+    $('message').addEventListener('input', updateCnt);
+
+  var ACC = [
+    { c1: '#f2a516', c2: '#f7c948', cd: '#d98a0b' },
+    { c1: '#2f7bf5', c2: '#6a6ee6', cd: '#0a63d8' },
+    { c1: '#8b5cf6', c2: '#d946ef', cd: '#7236dc' },
+    { c1: '#9a6420', c2: '#c88a3a', cd: '#7a4c14' },
+    { c1: '#f97316', c2: '#ef4444', cd: '#d85a06' },
+    { c1: '#1f2a44', c2: '#475569', cd: '#111a2e' }
+  ];
+  function accIdx() { var v = localStorage.getItem('acc'); var n = (v === null) ? 1 : Number(v); return ACC[n] ? n : 1; }
+  function soft(h) { var n = parseInt(h.slice(1), 16); return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',.14)'; }
+
+  function applyTheme() {
+    var th = localStorage.getItem('theme') || 'ios';
+    var a = ACC[accIdx()];
+    var st = document.body.style;
+    st.setProperty('--ac1', a.c1);
+    st.setProperty('--ac2', a.c2);
+    st.setProperty('--acd', a.cd);
+    st.setProperty('--acs', soft(a.c1));
+    document.body.classList.toggle('ios', th === 'ios');
+    $('thGold').className = 'ghost' + (th === 'gold' ? ' on' : '');
+    $('thIos').className = 'ghost' + (th === 'ios' ? ' on' : '');
+    var d = $('dots');
+    d.innerHTML = '<span class="dl">আইওএস লাইট</span>';
+    for (var i = 0; i < ACC.length; i++) {
+      var b = document.createElement('button');
+      b.className = 'dot' + (i === accIdx() ? ' sel' : '');
+      b.style.background = 'linear-gradient(135deg,' + ACC[i].c1 + ',' + ACC[i].c2 + ')';
+      b.setAttribute('aria-label', 'রং ' + (i + 1));
+      (function (k) { b.onclick = function () { setAcc(k); }; })(i);
+      d.appendChild(b);
+    }
+  }
+  function setTheme(t) { localStorage.setItem('theme', t); applyTheme(); updateHero(); toast(t === 'ios' ? 'আইওএস লাইট থিম চালু' : 'গোল্ড গ্লাস থিম চালু'); }
+
+  function buildLimit() {
+    var r = $('hmRing');
+    var h = r && r.closest ? r.closest('.hero') : null;
+    var t = h ? h.querySelector('.txt') : null;
+    if (!t || t.querySelector('.plim')) return;
+    var d = document.createElement('div');
+    d.className = 'plim';
+    d.innerHTML = '<span class="pltx"></span><div class="plbar"><i></i></div>';
+    t.appendChild(d);
+  }
+  function updateLimit() {
+    var c = cfg(), t = todayCount();
+    var f = c.limit ? Math.min(t / c.limit, 1) : 0;
+    var els = document.querySelectorAll('.plim');
+    for (var i = 0; i < els.length; i++) {
+      els[i].querySelector('i').style.width = (f * 100) + '%';
+      els[i].classList.toggle('full', f >= 0.9);
+      els[i].querySelector('.pltx').textContent = 'আজ ' + bn(t) + '/' + bn(c.limit) + ' পাঠানো হয়েছে';
+    }
+  }
+
+  function renderAnalysis() {
+    if (!$('chLine')) return;
+    var hist = getJSON('hist', []), lim = cfg().limit, N = 30;
+    var now = new Date(), vals = [], max = lim;
+    for (var i = N - 1; i >= 0; i--) {
+      var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i), n = 0;
+      for (var k = 0; k < hist.length; k++) {
+        var t = new Date(hist[k].time);
+        if (t.getFullYear() === d.getFullYear() && t.getMonth() === d.getMonth() && t.getDate() === d.getDate()) n++;
+      }
+      vals.push(n);
+      if (n > max) max = n;
+    }
+    var W = 320, T = 12, B = 118, top = max * 1.05;
+    function X(j) { return j * W / (N - 1); }
+    function Y(v) { return B - v / top * (B - T); }
+    var line = '';
+    for (var j = 0; j < N; j++) line += (j ? 'L' : 'M') + X(j).toFixed(1) + ' ' + Y(vals[j]).toFixed(1);
+    $('chLine').setAttribute('d', line);
+    $('chArea').setAttribute('d', line + 'L' + W + ' 130L0 130Z');
+    var ly = Y(lim).toFixed(1);
+    $('chLim').setAttribute('y1', ly); $('chLim').setAttribute('y2', ly);
+    $('chDot').setAttribute('cx', X(N - 1)); $('chDot').setAttribute('cy', Y(vals[N - 1]).toFixed(1));
+    $('chSub').textContent = 'আজ ' + bn(vals[N - 1]) + '/' + bn(lim);
+  }
+  function checkSend() {
+    var c = cfg(), bad = [];
+    if (!c.sid || !c.tid || !c.pkey) bad.push('EmailJS কী নেই');
+    if (!$('subject').value.trim() || !$('message').value.trim()) bad.push('Subject/Message ফাঁকা');
+    if (!items.length) bad.push('লিস্ট খালি');
+    var left = c.limit - todayCount();
+    if (left <= 0) bad.push('আজকের সীমা শেষ');
+    $('stChk').textContent = bad.length ? '✗' : '✓';
+    toast(bad.length ? bad.join(' • ') : 'সব ঠিক আছে, আজ আরও ' + bn(left) + 'টি পাঠানো যাবে');
+  }
+  function setAcc(i) { localStorage.setItem('acc', i); applyTheme(); }
+  var BD = [
+    { n: 'ডিপ অরেঞ্জ', c: '#ff5a00' },
+    { n: 'লাল', c: '#ef4444' },
+    { n: 'সোনালি', c: '#f5b301' },
+    { n: 'সবুজ', c: '#22c55e' },
+    { n: 'আকাশি', c: '#06b6d4' },
+    { n: 'নীল', c: '#2f6bff' },
+    { n: 'বেগুনি', c: '#8b5cf6' }
+  ];
+  function bdIdx() { var v = localStorage.getItem('bd'); var n = (v === null || v === '') ? -1 : Number(v); return BD[n] ? n : -1; }
+  function applyBorder() {
+    var i = bdIdx();
+    var st = document.body.style;
+    if (i < 0) { st.setProperty('--bw', '0px'); } else { st.setProperty('--bc', BD[i].c); st.setProperty('--bw', '6px'); }
+    var d = $('bdots');
+    if (!d) return;
+    d.innerHTML = '';
+    for (var k = 0; k < BD.length; k++) {
+      var b = document.createElement('button');
+      b.className = 'dot' + (k === i ? ' sel' : '');
+      b.style.background = BD[k].c;
+      b.setAttribute('aria-label', 'বর্ডার ' + BD[k].n);
+      (function (x) { b.onclick = function () { setBorder(x); }; })(k);
+      d.appendChild(b);
+    }
+    var o = document.createElement('button');
+    o.className = 'mini bnone';
+    o.textContent = 'বন্ধ';
+    o.onclick = function () { setBorder(-1); };
+    d.appendChild(o);
+  }
+  function setBorder(i) { localStorage.setItem('bd', i); applyBorder(); toast(i < 0 ? 'বর্ডার বন্ধ' : 'বর্ডার: ' + BD[i].n); }
+
+
+  function updateKeyDot() {
+    var c = cfg();
+    $('keyDot').style.background = (c.sid && c.tid && c.pkey) ? '#34c759' : '#ff3b5c';
+  }
+
+  function syncFab() {
+    renderAnalysis();
+    var onSend = $('sec-send').className.indexOf('on') !== -1;
+    var showIt = onSend && items.length > 0;
+    $('fab').className = 'fab' + (showIt ? ' on' : '') + (running ? ' stop' : '');
+    document.body.classList.toggle('hasfab', showIt);
+    $('fabT').textContent = running ? 'থামান' : 'সবাইকে পাঠান';
+    $('fabS').textContent = running ? 'চলছে... থামাতে চাপুন' : 'একে একে স্বয়ংক্রিয়ভাবে';
+  }
+
+  var WD = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
+  var GM = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+  var BM = ['বৈশাখ', 'জ্যৈষ্ঠ', 'আষাঢ়', 'শ্রাবণ', 'ভাদ্র', 'আশ্বিন', 'কার্তিক', 'অগ্রহায়ণ', 'পৌষ', 'মাঘ', 'ফাল্গুন', 'চৈত্র'];
+
+  function banglaDate(d) {
+    var y = d.getFullYear();
+    var start = new Date(y, 3, 14);
+    if (new Date(y, d.getMonth(), d.getDate()) < start) { y--; start = new Date(y, 3, 14); }
+    var days = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - start) / 86400000);
+    var ny = y + 1;
+    var leap = (ny % 4 === 0 && ny % 100 !== 0) || ny % 400 === 0;
+    var ml = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, leap ? 30 : 29, 30];
+    var m = 0;
+    while (m < 11 && days >= ml[m]) { days -= ml[m]; m++; }
+    return { day: days + 1, month: BM[m], year: y - 593 };
+  }
+
+  function setDate() {
+    var d = new Date();
+    var b = banglaDate(d);
+    var el = $('dateTxt');
+    el.innerHTML = '';
+    var parts = [
+      ['d1', 'আজ ' + WD[d.getDay()]],
+      ['d2', bn(d.getDate()) + ' ' + GM[d.getMonth()] + ' ' + bn(d.getFullYear())],
+      ['d3', bn(b.day) + ' ' + b.month + ' ' + bn(b.year)]
+    ];
+    for (var i = 0; i < parts.length; i++) {
+      if (i) {
+        var sp = document.createElement('span');
+        sp.className = 'dsep';
+        sp.textContent = ' • ';
+        el.appendChild(sp);
+      }
+      var t = document.createElement('span');
+      t.className = parts[i][0];
+      t.textContent = parts[i][1];
+      el.appendChild(t);
+    }
+  }
+  setDate();
+  setInterval(setDate, 60000);
+
+  function notifList() {
+    var c = cfg(), out = [], fail = 0, sent = 0;
+    for (var i = 0; i < items.length; i++) { if (items[i].status === 'fail') fail++; else if (items[i].status === 'sent') sent++; }
+    if (!c.sid || !c.tid || !c.pkey) out.push('EmailJS কী দেওয়া হয়নি');
+    if (c.limit - todayCount() <= 0) out.push('আজকের সীমা শেষ');
+    if (fail) out.push(bn(fail) + 'টি ব্যর্থ হয়েছে');
+    return { list: out, sent: sent };
+  }
+  function updateBell() {
+    var b = $('bellBtn'); if (!b) return;
+    b.className = 'ibtn bellbtn' + (notifList().list.length ? ' has' : '');
+  }
+  function showNotif() {
+    var n = notifList();
+    toast(n.list.length ? n.list.join(' • ') : 'নতুন কোনো নোটিফিকেশন নেই');
+  }
+  setInterval(updateBell, 2000);
+  updateBell();
+
+  buildLimit();
+  applyTheme();
+  applyBorder();
+  loadSettings();
+  loadDraft();
+  renderTplPage();
+  updateCnt();
+  render();
+</script>
+<script>if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){navigator.serviceWorker.register('sw.js').catch(function(){})}</script>
+</body>
+</html>
