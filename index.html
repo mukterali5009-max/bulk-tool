@@ -22,7 +22,7 @@ p{margin:0}.mute{color:var(--mute);font-size:.92rem}
 .btn.sm{min-height:44px}
 .row{display:flex;gap:8px;margin-top:10px}.row>*{flex:1}
 label{display:block;font-size:.85rem;color:var(--mute);margin:10px 0 4px}
-input[type=text],input[type=number],input[type=password],select{width:100%;min-width:0;min-height:46px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--s2);color:var(--ink);font:inherit}
+input[type=text],input[type=number],input[type=password],select,textarea{width:100%;min-width:0;min-height:46px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--s2);color:var(--ink);font:inherit}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #status,#chatMsg{min-height:1.5em;margin:10px 2px;color:var(--mute);font-size:.92rem}
 .stats{display:flex;gap:10px}.stats div{flex:1;text-align:center}.stats b{display:block;font-size:1.5rem;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.2}
@@ -36,12 +36,19 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .empty{text-align:center;color:var(--mute);padding:28px 8px}
 .lg{display:flex;align-items:center;gap:12px;min-height:48px;margin:0;color:var(--ink);font-size:1rem;border-bottom:1px solid var(--line)}
 .lg:last-child{border:0}.lg input{width:22px;height:22px;accent-color:var(--gold)}
-.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.res{flex:0 0 auto;min-width:108px;text-align:center;padding:8px 10px;border-radius:12px;border:1px solid #1f5a40;background:#0f2a1d}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 10px;align-items:flex-start}
+.top>div:first-child{flex:1 1 100px;min-width:0}
+.res{flex:0 1 185px;min-width:170px;text-align:center;padding:8px 10px;border-radius:12px;border:1px solid #1f5a40;background:#0f2a1d}
 .res b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums;color:var(--em);line-height:1.3}
 .res span{display:block;font-size:.72rem;color:var(--mute)}
 .res.no{border-color:var(--line);background:var(--s2)}.res.no b{color:var(--mute)}
+.card textarea{min-height:110px;resize:vertical;line-height:1.5}
 .res b.amt{font-size:.95rem;color:var(--ink)}
+.res .rows{margin-top:6px;padding-top:6px;border-top:1px solid #1f5a40;text-align:left}
+.res.no .rows{border-color:var(--line)}
+.res .rw{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0 6px;line-height:1.5}
+.res .rw span{display:inline;font-size:.78rem;color:var(--mute)}
+.res .rw b{display:inline;font-size:.82rem;color:var(--ink);line-height:1.5}
 .kv{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
 .kv b{font-size:1.05rem}.good{color:var(--em)}.bad{color:var(--warn)}
 .warn{font-size:.85rem;color:var(--warn);margin-top:8px}
@@ -96,6 +103,10 @@ nav svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;st
 <label for="hours">কত ঘণ্টার মধ্যের খেলা</label><input id="hours" type="number" inputmode="numeric">
 <label for="minP">সর্বনিম্ন লাভ (%)</label><input id="minP" type="number" step="0.1" inputmode="decimal">
 <label for="stake">মোট বাজির পরিমাণ (ভাগ হিসাবের জন্য)</label><input id="stake" type="number" inputmode="numeric"></div>
+<div class="card"><h2>টেলিগ্রাম টেমপ্লেট</h2><p class="mute">প্রতিটি ম্যাচের নিচে এই লেখা বসবে। নিচের কোড লিখলে নিজে সংখ্যা হয়ে যাবে:<br>{match} {league} {time} {total} {profit3} {p2} {amt2} {d1} {d2} {o1} {o2} {o3} {k1} {k2} {k3} {b1} {b2} {b3}</p>
+<p class="mute" style="margin-top:6px">o = odds, k = বুকমেকার, b = বাজি। ১ = হোম, ২ = ড্র, ৩ = অ্যাওয়ে। {p2} আর {amt2} মানে দুই টিমের (ড্র বাদ) লাভ % ও টাকা, {d1} ও {d2} মানে ওই দুই টিমের বাজির পরিমাণ।</p>
+<label for="tpl">টেমপ্লেট</label><textarea id="tpl" spellcheck="false"></textarea>
+<div class="row"><button class="btn ghost sm" id="tplReset">আগের টেমপ্লেট ফেরাও</button></div></div>
 </section>
 </main>
 
@@ -144,12 +155,13 @@ $('noLg').onclick=()=>{picked=[];store.set('leagues',picked);drawLeagues()};
 function cost(){const n=LEAGUES.filter(k=>picked.includes(k)).length*$('regions').value.split(',').length;$('cost').textContent='প্রতিবার খোঁজায় প্রায় '+n+' credit খরচ হবে।'}
 
 /* settings */
-const DEFS={regions:'eu,uk',hours:72,minP:0,stake:2500};
-['apiKey','tgToken','tgChat','regions','hours','minP','stake'].forEach(id=>{
+const DEFS={regions:'eu,uk',hours:72,minP:0,stake:2500,tpl:'━━━━━━━━\nদুই টিম (ড্র বাদ): +{p2}% → {amt2} টাকা\nবাজি 1 (@ {o1}): {d1} টাকা\nবাজি 2 (@ {o3}): {d2} টাকা'};
+['apiKey','tgToken','tgChat','regions','hours','minP','stake','tpl'].forEach(id=>{
   const v=store.get(id,DEFS[id]);$(id).value=(v===undefined||v===null)?'':v;
   $(id).oninput=()=>{store.set(id,$(id).value.trim());if(id==='regions')cost();if(id==='stake'){$('cT').value=$('stake').value;calc()}if(all.length&&id!=='regions')show()};
 });
 $('regions').onchange=$('regions').oninput;
+$('tplReset').onclick=()=>{$('tpl').value=DEFS.tpl;store.set('tpl',DEFS.tpl)};
 $('showKeys').onclick=()=>{const hide=$('apiKey').type==='text';['apiKey','tgToken'].forEach(id=>{$(id).type=hide?'password':'text'});$('showKeys').textContent=hide?'key দেখাও':'key লুকাও'};
 const tokUrl=(tok,m)=>'https://api.telegram.org/bot'+tok.replace(/\s/g,'')+'/'+m;
 $('findChat').onclick=async()=>{
@@ -239,13 +251,24 @@ function show(){
     el('b','',(g2>=0?'+':'−')+Math.abs((1/a.s2-1)*100).toFixed(2)+'%',res);
     el('b','amt',Math.abs(g2).toFixed(2)+' টাকা',res);
     el('span','','দুই টিম (ড্র বাদ)',res);
+    const rows=el('div','rows',null,res);
+    [a.legs[0].price,a.legs[2].price].forEach((od,i)=>{const r=el('div','rw',null,rows);el('span','','বাজি '+(i+1)+' (@ '+od.toFixed(2)+')',r);el('b','',(stake/od/a.s2).toFixed(2)+' টাকা',r)});
     el('span','badge '+(ok?'ok':'no'),ok?'তিন ফলাফলে লাভ +'+a.profit.toFixed(2)+'%':'তিন ফলাফলের যোগফল '+(a.sum*100).toFixed(1)+'%',c);
     legs(a,c,ok);
   });
 }
 
 /* telegram + copy */
-function line(a){const stake=num($('stake').value,2500);return a.home+' vs '+a.away+'\nতিন ফলাফলে লাভ: +'+a.profit.toFixed(2)+'%\nদুই টিম (ড্র বাদ): +'+((1/a.s2-1)*100).toFixed(2)+'% → '+(num($('stake').value,2500)/a.s2-num($('stake').value,2500)).toFixed(2)+' টাকা\n'+a.legs.map(l=>dname(l.name)+' @ '+l.price.toFixed(2)+' ('+l.book+') → বাজি '+Math.round(stake/l.price/a.sum)).join('\n')}
+function fill(t,a){
+  const T=num($('stake').value,2500),L=a.legs,g2=T/a.s2-T,bet=l=>Math.round(T/l.price/a.sum);
+  const m={match:a.home+' vs '+a.away,league:lname(a.league),time:fmt(a.time),total:T,profit3:a.profit.toFixed(2),p2:((1/a.s2-1)*100).toFixed(2),amt2:g2.toFixed(2),d1:(T/L[0].price/a.s2).toFixed(2),d2:(T/L[2].price/a.s2).toFixed(2),
+    o1:L[0].price.toFixed(2),o2:L[1].price.toFixed(2),o3:L[2].price.toFixed(2),k1:L[0].book,k2:L[1].book,k3:L[2].book,b1:bet(L[0]),b2:bet(L[1]),b3:bet(L[2])};
+  return t.replace(/\{(\w+)\}/g,(x,k)=>k in m?m[k]:x);
+}
+function line(a){
+  const T=num($('stake').value,2500),tpl=$('tpl').value.trim();
+  return a.home+' vs '+a.away+'\nতিন ফলাফলে লাভ: +'+a.profit.toFixed(2)+'%\n'+a.legs.map(l=>dname(l.name)+' @ '+l.price.toFixed(2)+' ('+l.book+') → বাজি '+Math.round(T/l.price/a.sum)).join('\n')+(tpl?'\n'+fill(tpl,a):'');
+}
 function chunks(){
   const out=[];let cur='⚽ আর্বিট্রেজ সুযোগ ('+arbs.length+'টি)';
   arbs.forEach(a=>{const b='🕒 '+fmt(a.time)+' · '+lname(a.league)+'\n'+line(a);if((cur+'\n\n'+b).length>3500){out.push(cur);cur=b}else cur+='\n\n'+b});
