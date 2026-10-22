@@ -129,7 +129,7 @@ input[type=color]{width:100%;height:40px;padding:3px;border:1.5px solid var(--li
   <div class="tabs"><button id="t1" class="on" onclick="tab(1)">লাইভ স্ক্যান</button><button id="t2" onclick="tab(2)">ক্যালকুলেটর</button></div>
 
   <div id="p1">
-    <label class="l" for="key">১. API কী (the-odds-api.com এ ফ্রি পাওয়া যায়)</label>
+    <label class="l" for="key">১. API কী (ডিফল্ট: the-odds-api.com · সোর্স বদলাতে সেটিংস দেখুন)</label>
     <input id="key" type="password" autocomplete="off" placeholder="আপনার API key">
     <label class="l">২. কোন খেলা দেখবেন</label>
     <div class="sports" id="sports"></div>
@@ -149,7 +149,15 @@ input[type=color]{width:100%;height:40px;padding:3px;border:1.5px solid var(--li
         <div><label class="l" for="reg">অঞ্চল</label><input type="text" id="reg" value="eu,uk,au,us"></div>
         <div><label class="l" for="auto">অটো-রিফ্রেশ</label><select id="auto"><option value="0">বন্ধ</option><option value="120">২ মিনিট</option><option value="300">৫ মিনিট</option></select></div>
       </div>
-      <label class="l" style="display:flex;gap:8px;align-items:center;color:var(--ink)"><input type="checkbox" id="usecustom"> The Odds API-র বদলে অন্য odds API ব্যবহার করব</label>
+      <label class="l" for="src">ডেটা সোর্স</label>
+      <select id="src"><option value="odds">The Odds API (ডিফল্ট)</option><option value="papi">OddsPapi (ফ্রি ২৫০ রিকোয়েস্ট/মাস)</option><option value="custom">অন্য API (কাস্টম)</option></select>
+      <div id="papiBox" class="hide">
+        <div class="grid">
+          <div><label class="l" for="pbooks">বুকমেকার slug (কমা দিয়ে; ৩টিতে ১ রিকোয়েস্ট)</label><input id="pbooks" type="text" value="pinnacle,bet365,singbet"></div>
+          <div><label class="l" for="pmax">সর্বোচ্চ টুর্নামেন্ট (প্রতি খেলায়)</label><input id="pmax" type="number" value="25" min="1" max="60"></div>
+        </div>
+        <p class="status">OddsPapi-র কী দিন। প্রতি স্ক্যানে মোটামুটি: ২ + খেলা × (১ + বুকমেকার-গ্রুপ) রিকোয়েস্ট খরচ হয়। অটো-রিফ্রেশ এই সোর্সে বন্ধ থাকে।</p>
+      </div>
       <div id="customBox" class="hide">
         <label class="l" for="urls">API লিংক (প্রতি লাইনে একটি; কী বসাতে {KEY} লিখুন)</label>
         <textarea id="urls" placeholder="https://আপনার-api.com/odds?apikey={KEY}"></textarea>
@@ -206,11 +214,10 @@ $("moreb").parentNode.onclick=e=>{e.preventDefault();const h=document.querySelec
 const MAXAGE=20*60*1000,isTT=t=>/table.?tennis/i.test(t);
 const wayLabel=(g,w)=>w===3?"৩-way (নির্ধারিত সময়, ড্র সহ)":g==="Ice Hockey"?"২-way (OT/শুটআউট সহ — নিয়ম মিলিয়ে নিন)":"২-way";
 let ALL=[],FILTER="all",timer=null,checked=0;
-const CFGIDS=["reg","urls","key","hdr","fmt","mapm","p_events","p_home","p_away","p_start","p_sport","p_books","p_bname","p_outs","p_oname","p_price"];
+const CFGIDS=["src","pbooks","pmax","reg","urls","key","hdr","fmt","mapm","p_events","p_home","p_away","p_start","p_sport","p_books","p_bname","p_outs","p_oname","p_price"];
 try{const c=JSON.parse(localStorage.getItem("cfg")||"{}");CFGIDS.forEach(i=>{if(c[i]!=null)$(i).value=c[i]})}catch(e){}
-const saveCfg=()=>{try{const c={};CFGIDS.forEach(i=>c[i]=$(i).value);c.usecustom=$("usecustom").checked;localStorage.setItem("cfg",JSON.stringify(c))}catch(e){}};
-try{$("usecustom").checked=!!JSON.parse(localStorage.getItem("cfg")||"{}").usecustom}catch(e){}
-const tgl=()=>$("customBox").classList.toggle("hide",!$("usecustom").checked);$("usecustom").addEventListener("change",tgl);tgl();
+const saveCfg=()=>{try{const c={};CFGIDS.forEach(i=>c[i]=$(i).value);localStorage.setItem("cfg",JSON.stringify(c))}catch(e){}};
+const tgl=()=>{$("customBox").classList.toggle("hide",$("src").value!=="custom");$("papiBox").classList.toggle("hide",$("src").value!=="papi")};$("src").addEventListener("change",tgl);tgl();
 $("mapm").addEventListener("change",()=>$("cm").classList.toggle("hide",$("mapm").value!=="custom"));
 $("cm").classList.toggle("hide",$("mapm").value!=="custom");
 
@@ -308,7 +315,7 @@ function readCfg(){
 async function scan(paste){
   if(paste!==true)paste=false;
   saveCfg();
-  if(!paste&&!$("usecustom").checked)return scanOdds();
+  if(!paste){const sv=$("src").value;if(sv==="odds")return scanOdds();if(sv==="papi")return scanPapi()}
   const sel=new Set([...document.querySelectorAll("#sports input:checked")].map(i=>i.value));
   const bank=+$("bank").value||1000,cfg=readCfg(),datas=[];
   $("go").disabled=true;
@@ -361,6 +368,107 @@ async function scanOdds(){
     FILTER="all";render();
   }catch(e){setStatus(e.message,1)}
   finally{$("go").disabled=false;schedule()}
+}
+let papiN=0,papiT=0;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function papi(path,params,key){
+  const w=papiT+1100-Date.now();if(w>0)await sleep(w);papiT=Date.now();
+  let r;
+  try{r=await fetch("https://api.oddspapi.io/v4/"+path+"?"+new URLSearchParams({...params,apiKey:key}))}
+  catch(e){throw new Error("OddsPapi-র সাথে সংযোগ হয়নি (ইন্টারনেট বা CORS)।")}
+  papiN++;
+  if(r.status===401||r.status===403)throw new Error("OddsPapi API কী ভুল বা অনুমতি নেই।");
+  if(r.status===429)throw new Error("খুব দ্রুত রিকোয়েস্ট (429) — একটু পরে আবার চেষ্টা করুন।");
+  if(r.status===404)return null;
+  if(!r.ok)throw new Error("OddsPapi ত্রুটি "+r.status);
+  return r.json();
+}
+async function papiCached(path,params,key){ // sports/markets কম বদলায়, তাই ৭ দিন ক্যাশ — কোটা বাঁচে
+  let c={};try{c=JSON.parse(localStorage.getItem("papi_cache")||"{}")}catch(e){}
+  const k=path+JSON.stringify(params),h=c[k];
+  if(h&&Date.now()-h.t<6048e5)return h.d;
+  const d=await papi(path,params,key);
+  try{c[k]={t:Date.now(),d};localStorage.setItem("papi_cache",JSON.stringify(c))}catch(e){}
+  return d;
+}
+function pickMarkets(M,sid){
+  const base=m=>m.sportId===sid&&!m.playerProp&&!(+m.handicap);
+  let c=M.filter(m=>base(m)&&/^(fulltime|full.?time|match|ft|)$/i.test(m.period||"")&&/1x2|moneyline|winner|h2h/i.test(m.marketType||""));
+  if(!c.length)c=M.filter(m=>base(m)&&m.marketLength<=3&&/winner|moneyline|match result|full time result|to win/i.test(m.marketName||""));
+  return c.slice(0,2);
+}
+async function scanPapi(){
+  const key=$("key").value.trim();
+  const sel=new Set([...document.querySelectorAll("#sports input:checked")].map(i=>i.value));
+  if(!key){setStatus("OddsPapi API কী দিন।",1);return}
+  if(!sel.size){setStatus("অন্তত একটি খেলা বাছাই করুন।",1);return}
+  const bank=+$("bank").value||1000,minp=+$("minp").value||0,maxT=Math.min(60,+$("pmax").value||25);
+  const books=$("pbooks").value.split(",").map(x=>x.trim().toLowerCase()).filter(Boolean);
+  if(!books.length){setStatus("কমপক্ষে একটি বুকমেকার লিখুন।",1);return}
+  $("go").disabled=true;papiN=0;ALL=[];checked=0;
+  try{
+    setStatus("খেলা ও মার্কেটের তালিকা আনা হচ্ছে…");
+    const sp=await papiCached("sports",{},key),M=(await papiCached("markets",{},key))||[];
+    const chunks=[];let cur=[];
+    for(const b of books){if(b==="betfair-ex"){chunks.push([b]);continue}cur.push(b);if(cur.length===3){chunks.push(cur);cur=[]}}
+    if(cur.length)chunks.push(cur);
+    const spl=(Array.isArray(sp)?sp:[]).map(s=>({id:s.sportId,name:s.sportName,g:groupOf(s.sportName)})).filter(s=>sel.has(s.g));
+    if(!spl.length)throw new Error("বাছাই করা খেলা এই API-তে পাওয়া যায়নি।");
+    const used=[];
+    for(const s of spl){
+      const cands=pickMarkets(Array.isArray(M)?M:[],s.id);
+      if(!cands.length){used.push(s.name+": মার্কেট চেনা যায়নি");continue}
+      setStatus(`${s.name}: টুর্নামেন্ট খোঁজা হচ্ছে…`);
+      const T=(await papi("tournaments",{sportId:s.id},key))||[];
+      let act=T.filter(x=>(x.upcomingFixtures||0)+(x.liveFixtures||0)>0);
+      if(!act.length)act=T.filter(x=>(x.futureFixtures||0)>0);
+      act.sort((a,b)=>(b.upcomingFixtures||0)-(a.upcomingFixtures||0)||(b.futureFixtures||0)-(a.futureFixtures||0));
+      const ids=act.slice(0,maxT).map(x=>x.tournamentId);
+      if(!ids.length)continue;
+      const fx={};
+      for(const ch of chunks){
+        setStatus(`${s.name}: odds আনা হচ্ছে (${ch.join(", ")})…`);
+        let d=await papi("odds-by-tournaments",{tournamentIds:ids.join(","),bookmakers:ch.join(",")},key);
+        d=Array.isArray(d)?d:(d&&d.fixtureId?[d]:[]);
+        for(const f of d){const o=fx[f.fixtureId]||(fx[f.fixtureId]={f,bo:{}});Object.assign(o.bo,f.bookmakerOdds||{})}
+      }
+      used.push(s.name+": "+cands.map(m=>m.marketName).join(" / "));
+      for(const {f,bo} of Object.values(fx)){
+        if(f.statusId>1)continue;checked++;
+        for(const mk of cands){
+          const nm={};(mk.outcomes||[]).forEach(o=>nm[o.outcomeId]=String(o.outcomeName));
+          const need=(mk.outcomes||[]).length||mk.marketLength;
+          const bms=Object.entries(bo).map(([slug,b])=>{
+            const m=b&&!b.suspended&&b.markets&&b.markets[mk.marketId];if(!m||m.marketActive===false)return null;
+            const outs=[];let old=Date.now();
+            for(const [oid,o] of Object.entries(m.outcomes||{})){
+              const p=o.players&&o.players["0"];if(!p||!p.active||!(p.price>1))continue;
+              outs.push({name:nm[oid]||oid,price:+p.price});const t=Date.parse(p.changedAt||"");if(t&&t<old)old=t;
+            }
+            if(outs.length!==need)return null; // সব ফলাফল সক্রিয় থাকতে হবে
+            return{title:slug,markets:[{key:"h2h",outcomes:outs,last_update:new Date(old).toISOString()}]};
+          }).filter(Boolean);
+          const ev={sport_title:s.name,home_team:"#"+f.participant1Id,away_team:"#"+f.participant2Id,commence_time:f.startTime,bookmakers:bms,_fid:f.fixtureId,_tid:f.tournamentId};
+          const res=calcEvent(ev,bank);if(res&&res.inv<1)ALL.push({ev,res,group:s.g});
+        }
+      }
+    }
+    // শুধু আর্বিট্রেজ-পাওয়া ম্যাচের নাম আনা (কম রিকোয়েস্ট)
+    const hits=ALL.filter(a=>a.res.pct>=minp),tids=[...new Set(hits.map(a=>a.ev._tid))].slice(0,8),names={};
+    if(tids.length){
+      setStatus("ম্যাচের নাম আনা হচ্ছে…");
+      const from=new Date().toISOString().slice(0,10),to=new Date(Date.now()+14*864e5).toISOString().slice(0,10);
+      for(const t of tids){const fl=await papi("fixtures",{tournamentId:t,from,to},key);for(const x of Array.isArray(fl)?fl:[])names[x.fixtureId]=[x.participant1Name,x.participant2Name]}
+    }
+    for(const a of hits){
+      const n=names[a.ev._fid];if(n&&n[0]){a.ev.home_team=n[0];a.ev.away_team=n[1]}
+      const m={"1":a.ev.home_team,"2":a.ev.away_team,X:"Draw",x:"Draw"};
+      a.res.legs.forEach(l=>{if(m[l.name])l.name=m[l.name]});
+    }
+    setStatus(`শেষ: ${checked}টি ম্যাচ যাচাই। OddsPapi রিকোয়েস্ট খরচ: ${papiN} (ফ্রি ২৫০/মাস)। মার্কেট: ${used.join(" · ")}`);
+    FILTER="all";render();
+  }catch(e){setStatus(e.message,1)}
+  finally{$("go").disabled=false}
 }
 function schedule(){clearTimeout(timer);const s=+$("auto").value;if(s)timer=setTimeout(scan,s*1000)}
 $("auto").addEventListener("change",schedule);
