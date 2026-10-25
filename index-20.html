@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a110d">
+<title>আর্বিট্রেজ ফাইন্ডার</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0a110d;--s1:#111b15;--s2:#182420;--line:#243429;--ink:#e9f0eb;--mute:#8a9e92;--gold:#e2b64f;--em:#3ecf8e;--warn:#ff8a65}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+body{margin:0 auto;max-width:560px;padding:0 16px calc(88px + env(safe-area-inset-bottom));color:var(--ink);font:16px/1.55 'Hind Siliguri',system-ui,sans-serif;background:var(--bg)}
+header{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 -16px;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;background:var(--bg);border-bottom:1px solid var(--line)}
+h1{font-size:1.25rem;margin:0;font-weight:600}h1 span{color:var(--gold)}
+h2{font-size:1.1rem;margin:2px 0;font-weight:600}
+p{margin:0}.mute{color:var(--mute);font-size:.92rem}
+#credit{font-size:.8rem;color:var(--gold);border:1px solid #4a3d19;background:#1d1809;border-radius:999px;padding:2px 10px;white-space:nowrap}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0}
+.btn{width:100%;min-height:52px;border:0;border-radius:14px;font:inherit;font-weight:600;font-size:1.05rem;color:#1a1305;background:linear-gradient(135deg,#f3cd66,#c9972f);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-size:.95rem;font-weight:400}
+.btn.sm{min-height:44px}
+.row{display:flex;gap:8px;margin-top:10px}.row>*{flex:1}
+label{display:block;font-size:.85rem;color:var(--mute);margin:10px 0 4px}
+input[type=text],input[type=number],input[type=password],select,textarea{width:100%;min-width:0;min-height:46px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--s2);color:var(--ink);font:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+#status,#chatMsg{min-height:1.5em;margin:10px 2px;color:var(--mute);font-size:.92rem}
+.stats{display:flex;gap:10px}.stats div{flex:1;text-align:center}.stats b{display:block;font-size:1.5rem;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.2}
+.match .meta{font-size:.82rem;color:var(--mute)}
+.match .t{font-size:1.12rem;font-weight:600;margin:2px 0 8px}
+.badge{display:inline-block;padding:2px 12px;border-radius:999px;font-size:.9rem;font-weight:600;margin-bottom:6px}
+.badge.ok{color:#06210f;background:var(--em)}.badge.no{color:var(--mute);background:var(--s2);border:1px solid var(--line)}
+.leg{display:grid;grid-template-columns:1fr auto;gap:0 10px;padding:7px 0;border-top:1px solid var(--line)}
+.leg b{color:var(--gold);font-variant-numeric:tabular-nums}
+.leg .bk{grid-column:1/-1;color:var(--mute);font-size:.82rem}
+.empty{text-align:center;color:var(--mute);padding:28px 8px}
+.lg{display:flex;align-items:center;gap:12px;min-height:48px;margin:0;color:var(--ink);font-size:1rem;border-bottom:1px solid var(--line)}
+.lg:last-child{border:0}.lg input{width:22px;height:22px;accent-color:var(--gold)}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 10px;align-items:flex-start}
+.top>div:first-child{flex:1 1 100px;min-width:0}
+.res{flex:0 1 185px;min-width:170px;text-align:center;padding:8px 10px;border-radius:12px;border:1px solid #1f5a40;background:#0f2a1d}
+.res b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums;color:var(--em);line-height:1.3}
+.res span{display:block;font-size:.72rem;color:var(--mute)}
+.res.no{border-color:var(--line);background:var(--s2)}.res.no b{color:var(--mute)}
+.card textarea{min-height:110px;resize:vertical;line-height:1.5}
+.res b.amt{font-size:.95rem;color:var(--ink)}
+.res .rows{margin-top:6px;padding-top:6px;border-top:1px solid #1f5a40;text-align:left}
+.res.no .rows{border-color:var(--line)}
+.res .rw{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0 6px;line-height:1.5}
+.res .rw span{display:inline;font-size:.78rem;color:var(--mute)}
+.res .rw b{display:inline;font-size:.82rem;color:var(--ink);line-height:1.5}
+.kv{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.kv b{font-size:1.05rem}.good{color:var(--em)}.bad{color:var(--warn)}
+.warn{font-size:.85rem;color:var(--warn);margin-top:8px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:6px 12px calc(6px + env(safe-area-inset-bottom));background:rgba(10,17,13,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+nav div{display:flex;max-width:560px;margin:0 auto}
+nav button{flex:1;background:none;border:0;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;font-size:.78rem;min-height:52px;cursor:pointer;border-radius:12px}
+nav button.on{color:var(--gold)}
+nav svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<header><h1>আর্বিট্রেজ <span>ফাইন্ডার</span></h1><span id="credit" hidden></span></header>
+
+<main>
+<section id="v-home">
+<div class="card">
+<h2>আর্বিট্রেজ odds খোঁজো</h2>
+<p class="mute" style="margin-bottom:12px">তিন ফলাফলেই আলাদা বুকমেকারের সেরা odds ধরে 1/odds-এর যোগফল ১-এর কম হলে লাভ নিশ্চিত। এমন সুযোগ বিরল, আর odds দ্রুত বদলায়।</p>
+<button class="btn" id="go">খেলা খোঁজো</button>
+<p class="mute" id="cost" style="margin-top:8px"></p>
+<div class="row"><button class="btn ghost" id="tg">টেলিগ্রামে পাঠাও</button><button class="btn ghost" id="copy">শিটের জন্য কপি</button></div>
+</div>
+<div id="status" role="status" aria-live="polite"></div>
+<div class="card stats" id="stats" hidden><div><b id="sA">0</b><span class="mute">আর্বিট্রেজ</span></div><div><b id="sM">0</b><span class="mute">ম্যাচ দেখা</span></div><div><b id="sB">–</b><span class="mute">সেরা লাভ</span></div></div>
+<div id="out"><p class="empty">এখনো কোনো খোঁজা হয়নি।</p></div>
+</section>
+
+<section id="v-calc" hidden>
+<div class="card"><h2>আর্বিট্রেজ ক্যালকুলেটর</h2><p class="mute">মোট বাজি আর odds দিলে প্রতিটি বাজির পরিমাণ ও নিশ্চিত লাভ বের করে দেয়।</p>
+<label for="cT">মোট বাজির পরিমাণ</label><input id="cT" type="number" inputmode="decimal">
+<div class="row"><div><label for="c1">১ম odds</label><input id="c1" type="number" step="0.01" inputmode="decimal" value="1.62"></div><div><label for="c2">২য় odds</label><input id="c2" type="number" step="0.01" inputmode="decimal" value="5.60"></div></div>
+<button class="btn" id="calcBtn" style="margin-top:14px">হিসাব করো</button></div>
+<div class="card" id="cOut"></div>
+</section>
+
+<section id="v-leagues" hidden>
+<div class="card"><h2>লিগ বেছে নাও</h2><p class="mute">কম লিগ মানে কম API credit খরচ।</p>
+<div class="row"><button class="btn ghost sm" id="allLg">সব বেছে নাও</button><button class="btn ghost sm" id="noLg">সব বাদ দাও</button></div></div>
+<div class="card" id="leagues" style="padding:4px 14px"></div>
+</section>
+
+<section id="v-settings" hidden>
+<div class="card"><h2>key ও টেলিগ্রাম</h2><p class="mute">এগুলো শুধু তোমার ফোনের ব্রাউজারে সেভ থাকে।</p>
+<label for="apiKey">Odds API key</label><input id="apiKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+<label for="tgToken">টেলিগ্রাম bot token</label><input id="tgToken" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+<label for="tgChat">টেলিগ্রাম chat id</label><input id="tgChat" type="text" autocomplete="off" spellcheck="false">
+<div class="row"><button class="btn ghost sm" id="showKeys">key দেখাও</button><button class="btn ghost sm" id="findChat">chat id নিজে বের করো</button></div>
+<p id="chatMsg" role="status" aria-live="polite"></p></div>
+<div class="card"><h2>খোঁজার সেটিং</h2>
+<label for="regions" style="margin-top:6px">বুকমেকার অঞ্চল (বেশি অঞ্চল = বেশি সুযোগ, বেশি credit)</label>
+<select id="regions"><option value="eu">EU (লিগপ্রতি ১ credit)</option><option value="eu,uk">EU + UK (লিগপ্রতি ২ credit)</option><option value="eu,uk,us,au">EU + UK + US + AU (লিগপ্রতি ৪ credit)</option></select>
+<label for="hours">কত ঘণ্টার মধ্যের খেলা</label><input id="hours" type="number" inputmode="numeric">
+<label for="minP">সর্বনিম্ন লাভ (%)</label><input id="minP" type="number" step="0.1" inputmode="decimal">
+<label for="stake">মোট বাজির পরিমাণ (ভাগ হিসাবের জন্য)</label><input id="stake" type="number" inputmode="numeric"></div>
+<div class="card"><h2>টেলিগ্রাম টেমপ্লেট</h2><p class="mute">প্রতিটি ম্যাচের নিচে এই লেখা বসবে। নিচের কোড লিখলে নিজে সংখ্যা হয়ে যাবে:<br>{match} {league} {time} {total} {profit3} {p2} {amt2} {d1} {d2} {o1} {o2} {o3} {k1} {k2} {k3} {b1} {b2} {b3}</p>
+<p class="mute" style="margin-top:6px">o = odds, k = বুকমেকার, b = বাজি। ১ = হোম, ২ = ড্র, ৩ = অ্যাওয়ে। {p2} আর {amt2} মানে দুই টিমের (ড্র বাদ) লাভ % ও টাকা, {d1} ও {d2} মানে ওই দুই টিমের বাজির পরিমাণ।</p>
+<label for="tpl">টেমপ্লেট</label><textarea id="tpl" spellcheck="false"></textarea>
+<div class="row"><button class="btn ghost sm" id="tplReset">আগের টেমপ্লেট ফেরাও</button></div></div>
+</section>
+</main>
+
+<nav><div>
+<button id="n-home" data-t="home"><svg viewBox="0 0 24 24"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>আর্বিট্রেজ</button>
+<button id="n-calc" data-t="calc"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg>ক্যালকুলেটর</button>
+<button id="n-leagues" data-t="leagues"><svg viewBox="0 0 24 24"><path d="M8 4h8v6a4 4 0 01-8 0zM8 6H4v1a3 3 0 003 3M16 6h4v1a3 3 0 01-3 3M12 14v4M8 20h8"/></svg>লিগ</button>
+<button id="n-settings" data-t="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg>সেটিংস</button>
+</div></nav>
+
+<script>
+const LEAGUES=['soccer_epl','soccer_spain_la_liga','soccer_italy_serie_a','soccer_germany_bundesliga','soccer_france_ligue_one','soccer_uefa_champs_league','soccer_uefa_europa_league','soccer_uefa_europa_conf_league','soccer_netherlands_eredivisie','soccer_portugal_primeira_liga','soccer_turkey_super_league','soccer_efl_champ','soccer_belgium_first_div','soccer_brazil_campeonato','soccer_usa_mls'];
+const LN={soccer_epl:'ইংলিশ প্রিমিয়ার লিগ',soccer_spain_la_liga:'লা লিগা (স্পেন)',soccer_italy_serie_a:'সিরি আ (ইতালি)',soccer_germany_bundesliga:'বুন্দেসলিগা (জার্মানি)',soccer_france_ligue_one:'লিগ ১ (ফ্রান্স)',soccer_uefa_champs_league:'চ্যাম্পিয়ন্স লিগ',soccer_uefa_europa_league:'ইউরোপা লিগ',soccer_uefa_europa_conf_league:'কনফারেন্স লিগ',soccer_netherlands_eredivisie:'এরেদিভিসি (নেদারল্যান্ডস)',soccer_portugal_primeira_liga:'প্রিমেইরা লিগা (পর্তুগাল)',soccer_turkey_super_league:'সুপার লিগ (তুরস্ক)',soccer_efl_champ:'ইংলিশ চ্যাম্পিয়নশিপ',soccer_belgium_first_div:'বেলজিয়াম ফার্স্ট ডিভিশন',soccer_brazil_campeonato:'ব্রাজিলিয়ান সিরি আ',soccer_usa_mls:'MLS (আমেরিকা)'};
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const num=(v,d)=>{const x=parseFloat(v);return Number.isFinite(x)?x:d};
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const status=m=>{$('status').textContent=m};
+const lname=k=>LN[k]||k;
+const dname=n=>n==='Draw'?'ড্র':n;
+const fmt=d=>new Intl.DateTimeFormat('bn-BD',{timeZone:'Asia/Dhaka',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(d);
+const fmtSheet=d=>{const p={};new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Dhaka',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d).forEach(x=>{p[x.type]=x.value});return p.day+'/'+p.month+'/'+p.year+' '+p.hour+':'+p.minute};
+const el=(tag,cls,txt,parent)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==null&&txt!==undefined)e.textContent=txt;if(parent)parent.appendChild(e);return e};
+
+let picked=store.get('leagues',null);if(!Array.isArray(picked))picked=LEAGUES.slice();
+let all=[],arbs=[],running=false,checked=0;
+
+/* tabs */
+const TABS=['home','calc','leagues','settings'];
+function go(t){TABS.forEach(x=>{$('v-'+x).hidden=x!==t;const b=$('n-'+x);b.classList.toggle('on',x===t);b.setAttribute('aria-current',x===t?'page':'false')});store.set('tab',t);window.scrollTo(0,0)}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.t));
+
+/* leagues */
+function drawLeagues(){
+  const box=$('leagues');box.innerHTML='';
+  LEAGUES.forEach(k=>{
+    const l=el('label','lg',null,box),c=el('input','',null,l);
+    c.type='checkbox';c.checked=picked.includes(k);
+    c.onchange=()=>{picked=c.checked?[...new Set([...picked,k])]:picked.filter(x=>x!==k);store.set('leagues',picked);cost()};
+    l.appendChild(document.createTextNode(lname(k)));
+  });
+  cost();
+}
+$('allLg').onclick=()=>{picked=LEAGUES.slice();store.set('leagues',picked);drawLeagues()};
+$('noLg').onclick=()=>{picked=[];store.set('leagues',picked);drawLeagues()};
+function cost(){const n=LEAGUES.filter(k=>picked.includes(k)).length*$('regions').value.split(',').length;$('cost').textContent='প্রতিবার খোঁজায় প্রায় '+n+' credit খরচ হবে।'}
+
+/* settings */
+const DEFS={regions:'eu,uk',hours:72,minP:0,stake:2500,tpl:'━━━━━━━━\nদুই টিম (ড্র বাদ): +{p2}% → {amt2} টাকা\nবাজি 1 (@ {o1}): {d1} টাকা\nবাজি 2 (@ {o3}): {d2} টাকা'};
+['apiKey','tgToken','tgChat','regions','hours','minP','stake','tpl'].forEach(id=>{
+  const v=store.get(id,DEFS[id]);$(id).value=(v===undefined||v===null)?'':v;
+  $(id).oninput=()=>{store.set(id,$(id).value.trim());if(id==='regions')cost();if(id==='stake'){$('cT').value=$('stake').value;calc()}if(all.length&&id!=='regions')show()};
+});
+$('regions').onchange=$('regions').oninput;
+$('tplReset').onclick=()=>{$('tpl').value=DEFS.tpl;store.set('tpl',DEFS.tpl)};
+$('showKeys').onclick=()=>{const hide=$('apiKey').type==='text';['apiKey','tgToken'].forEach(id=>{$(id).type=hide?'password':'text'});$('showKeys').textContent=hide?'key দেখাও':'key লুকাও'};
+const tokUrl=(tok,m)=>'https://api.telegram.org/bot'+tok.replace(/\s/g,'')+'/'+m;
+$('findChat').onclick=async()=>{
+  const msg=m=>{$('chatMsg').textContent=m};const tok=$('tgToken').value.trim();
+  if(!tok){msg('আগে টেলিগ্রাম bot token দাও।');return}
+  msg('খুঁজছি…');
+  try{
+    const d=await(await fetch(tokUrl(tok,'getUpdates'))).json();
+    if(!d.ok){msg('token ঠিক নেই'+(d.description?' ('+d.description+')':'')+'। আবার কপি করে পেস্ট করো।');return}
+    const chats=(d.result||[]).map(u=>(u.message||u.edited_message||{}).chat).filter(Boolean);
+    if(!chats.length){msg('এখনো কোনো মেসেজ নেই। টেলিগ্রামে নিজের bot-কে একটা "hi" পাঠিয়ে আবার চাপো।');return}
+    const id=String(chats[chats.length-1].id);$('tgChat').value=id;store.set('tgChat',id);msg('chat id বসে গেছে: '+id);
+  }catch(e){msg('নেট বা টেলিগ্রামে সমস্যা। আবার চেষ্টা করো।')}
+};
+
+/* arbitrage */
+function arb(ev){
+  const best={};
+  (ev.bookmakers||[]).forEach(b=>(b.markets||[]).forEach(mk=>{
+    if(mk.key!=='h2h')return;
+    mk.outcomes.forEach(o=>{if(o.price>1&&(!best[o.name]||o.price>best[o.name].price))best[o.name]={price:o.price,book:b.title||b.key}});
+  }));
+  const names=[ev.home_team,'Draw',ev.away_team];
+  if(!names.every(n=>best[n]))return null;
+  const sum=names.reduce((s,n)=>s+1/best[n].price,0);
+  return{home:ev.home_team,away:ev.away_team,sum,s2:1/best[ev.home_team].price+1/best[ev.away_team].price,profit:(1/sum-1)*100,legs:names.map(n=>({name:n,price:best[n].price,book:best[n].book}))};
+}
+async function getLeague(lg,key,regions){
+  const url='https://api.the-odds-api.com/v4/sports/'+lg+'/odds/?apiKey='+encodeURIComponent(key)+'&regions='+regions+'&markets=h2h&oddsFormat=decimal';
+  let r=await fetch(url);if(r.status===429){await sleep(1500);r=await fetch(url)}return r;
+}
+$('go').onclick=async()=>{
+  if(running)return;
+  const key=$('apiKey').value.trim();
+  if(!key){status('আগে "সেটিংস" ট্যাবে Odds API key দাও।');return}
+  const lgs=LEAGUES.filter(k=>picked.includes(k));
+  if(!lgs.length){status('"লিগ" ট্যাবে কমপক্ষে একটি লিগ বেছে নাও।');return}
+  let hours=num($('hours').value,72);if(hours<=0)hours=72;
+  const regions=$('regions').value;
+  const now=new Date(),limit=new Date(now.getTime()+hours*3600000);
+  all=[];arbs=[];checked=0;running=true;let failed=false;
+  try{
+    for(let i=0;i<lgs.length;i++){
+      status('লিগ '+(i+1)+'/'+lgs.length+' দেখছি…');
+      const r=await getLeague(lgs[i],key,regions);
+      const rem=r.headers.get('x-requests-remaining');
+      if(rem!==null){$('credit').hidden=false;$('credit').textContent='credit '+rem}
+      if(r.status===401){status('API key ভুল, অথবা এই মাসের credit শেষ। the-odds-api.com-এ দেখো।');failed=true;break}
+      if(!r.ok)continue;
+      const data=await r.json();
+      (Array.isArray(data)?data:[]).forEach(ev=>{const t=new Date(ev.commence_time);if(t<now||t>limit)return;const a=arb(ev);if(a){checked++;all.push({...a,time:t,league:lgs[i]})}});
+      await sleep(250);
+    }
+  }catch(e){status('নেট বা API-তে সমস্যা। নেট দেখে আবার চেষ্টা করো।');failed=true}
+  running=false;all.sort((a,b)=>b.profit-a.profit);show();
+  if(!failed){
+    if(!checked)status('কোনো খেলার odds পাওয়া যায়নি। ঘণ্টা বাড়াও বা আরও লিগ বেছে নাও।');
+    else status(arbs.length?arbs.length+'টি আর্বিট্রেজ সুযোগ মিলেছে।':'এখন কোনো আর্বিট্রেজ নেই। সবচেয়ে কাছের ৫টি নিচে দেখানো হলো।');
+  }
+};
+
+/* show */
+function legs(a,c,withStake){
+  const stake=num($('stake').value,2500);
+  a.legs.forEach(l=>{
+    const r=el('div','leg',null,c);
+    el('span','',dname(l.name),r);el('b','',l.price.toFixed(2),r);
+    el('span','bk',l.book+(withStake?' · বাজি '+Math.round(stake/l.price/a.sum):''),r);
+  });
+}
+function show(){
+  const o=$('out');o.innerHTML='';
+  const minP=Math.max(0,num($('minP').value,0));
+  arbs=all.filter(a=>a.profit>0&&a.profit>=minP);
+  $('stats').hidden=false;$('sA').textContent=arbs.length;$('sM').textContent=checked;
+  $('sB').textContent=all.length?(all[0].profit>0?'+':'')+all[0].profit.toFixed(2)+'%':'–';
+  const list=arbs.length?arbs:all.slice(0,5);
+  if(!list.length){o.innerHTML='<p class="empty">দেখানোর মতো কোনো খেলা নেই।</p>';return}
+  const stake=num($('stake').value,2500);
+  list.forEach(a=>{
+    const c=el('div','card match',null,o);
+    const top=el('div','top',null,c),left=el('div','',null,top);
+    el('div','meta',fmt(a.time)+' · '+lname(a.league),left);
+    el('div','t',a.home+' vs '+a.away,left);
+    const ok=arbs.length>0,g2=stake/a.s2-stake;
+    const res=el('div','res'+(ok?'':' no'),null,top);
+    el('b','',(g2>=0?'+':'−')+Math.abs((1/a.s2-1)*100).toFixed(2)+'%',res);
+    el('b','amt',Math.abs(g2).toFixed(2)+' টাকা',res);
+    el('span','','দুই টিম (ড্র বাদ)',res);
+    const rows=el('div','rows',null,res);
+    [a.legs[0].price,a.legs[2].price].forEach((od,i)=>{const r=el('div','rw',null,rows);el('span','','বাজি '+(i+1)+' (@ '+od.toFixed(2)+')',r);el('b','',(stake/od/a.s2).toFixed(2)+' টাকা',r)});
+    el('span','badge '+(ok?'ok':'no'),ok?'তিন ফলাফলে লাভ +'+a.profit.toFixed(2)+'%':'তিন ফলাফলের যোগফল '+(a.sum*100).toFixed(1)+'%',c);
+    legs(a,c,ok);
+  });
+}
+
+/* telegram + copy */
+function fill(t,a){
+  const T=num($('stake').value,2500),L=a.legs,g2=T/a.s2-T,bet=l=>Math.round(T/l.price/a.sum);
+  const m={match:a.home+' vs '+a.away,league:lname(a.league),time:fmt(a.time),total:T,profit3:a.profit.toFixed(2),p2:((1/a.s2-1)*100).toFixed(2),amt2:g2.toFixed(2),d1:(T/L[0].price/a.s2).toFixed(2),d2:(T/L[2].price/a.s2).toFixed(2),
+    o1:L[0].price.toFixed(2),o2:L[1].price.toFixed(2),o3:L[2].price.toFixed(2),k1:L[0].book,k2:L[1].book,k3:L[2].book,b1:bet(L[0]),b2:bet(L[1]),b3:bet(L[2])};
+  return t.replace(/\{(\w+)\}/g,(x,k)=>k in m?m[k]:x);
+}
+function line(a){
+  const T=num($('stake').value,2500),tpl=$('tpl').value.trim();
+  return a.home+' vs '+a.away+'\nতিন ফলাফলে লাভ: +'+a.profit.toFixed(2)+'%\n'+a.legs.map(l=>dname(l.name)+' @ '+l.price.toFixed(2)+' ('+l.book+') → বাজি '+Math.round(T/l.price/a.sum)).join('\n')+(tpl?'\n'+fill(tpl,a):'');
+}
+function chunks(){
+  const out=[];let cur='⚽ আর্বিট্রেজ সুযোগ ('+arbs.length+'টি)';
+  arbs.forEach(a=>{const b='🕒 '+fmt(a.time)+' · '+lname(a.league)+'\n'+line(a);if((cur+'\n\n'+b).length>3500){out.push(cur);cur=b}else cur+='\n\n'+b});
+  out.push(cur);return out;
+}
+$('tg').onclick=async()=>{
+  const tok=$('tgToken').value.trim(),chat=$('tgChat').value.trim();
+  if(!arbs.length){status('পাঠানোর মতো আর্বিট্রেজ এখন নেই। আগে খেলা খোঁজো।');return}
+  if(!tok||!chat){status('"সেটিংস" ট্যাবে টেলিগ্রাম token আর chat id দাও।');return}
+  try{
+    for(const text of chunks()){
+      const r=await fetch(tokUrl(tok,'sendMessage'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:chat,text})});
+      if(!r.ok){let d='';try{d=(await r.json()).description||''}catch(e){}status('টেলিগ্রামে যায়নি'+(d?' ('+d+')':'')+'। token ও chat id দেখো, আর bot-কে আগে "hi" পাঠিয়েছ কি না দেখো।');return}
+    }
+    status('টেলিগ্রামে পাঠানো হয়েছে।');
+  }catch(e){status('টেলিগ্রামে পাঠানো যায়নি। নেট দেখো।')}
+};
+$('copy').onclick=async()=>{
+  if(!arbs.length){status('কপি করার মতো আর্বিট্রেজ এখন নেই। আগে খেলা খোঁজো।');return}
+  const tsv=arbs.map(a=>[fmtSheet(a.time),lname(a.league),a.home,a.away,a.profit.toFixed(2)].concat(...a.legs.map(l=>[l.price.toFixed(2),l.book])).join('\t')).join('\n');
+  try{
+    if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(tsv);
+    else{const ta=document.createElement('textarea');ta.value=tsv;document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');document.body.removeChild(ta);if(!ok)throw 0}
+    status('কপি হয়েছে। Google Sheet-এ গিয়ে পেস্ট করো।');
+  }catch(e){status('কপি করা যায়নি। ব্রাউজারের অনুমতি দেখো।')}
+};
+
+/* calculator */
+function calc(){
+  const T=num($('cT').value,0),o=['c1','c2'].map(id=>num($(id).value,0));
+  const out=$('cOut');out.innerHTML='';
+  if(T<=0||o.some(x=>x<=1)){el('p','mute','মোট বাজি আর দুটি odds (১-এর বেশি) দাও।',out);return}
+  const sum=o.reduce((s,x)=>s+1/x,0),pay=T/sum,gain=pay-T,g=gain>=0;
+  el('h2','','বাজির পরিমাণ',out);
+  o.forEach((x,i)=>{const r=el('div','kv',null,out);el('span','','বাজি '+(i+1)+' (@ '+x+')',r);el('b','',(T/x/sum).toFixed(2),r)});
+  el('h2','','সারাংশ',out).style.marginTop='12px';
+  const a=el('div','kv',null,out);el('span','','লাভ',a);el('b',g?'good':'bad',(g?'+':'−')+Math.abs(gain/T*100).toFixed(2)+'%',a);
+  const b=el('div','kv',null,out);el('span','',g?'নিশ্চিত লাভ':'নিশ্চিত ক্ষতি',b);el('b',g?'good':'bad',Math.abs(gain).toFixed(2),b);
+  const d=el('div','kv',null,out);el('span','','মোট ফেরত',d);el('b','',pay.toFixed(2),d);
+  if(!g)el('p','warn','এটা আর্বিট্রেজ নয় (যোগফল '+(sum*100).toFixed(1)+'%)। এভাবে বাজি ধরলে ক্ষতি হবে।',out);
+  el('p','warn','সতর্কতা: এই হিসাব শুধু দুই ফলাফলের খেলায় (যেমন টেনিস) নিশ্চিত। ফুটবলে ড্র হলে দুটো বাজিই হারবে।',out);
+}
+$('calcBtn').onclick=calc;
+['c1','c2'].forEach(id=>{$(id).oninput=calc});
+$('cT').oninput=()=>{store.set('stake',$('cT').value.trim());$('stake').value=$('cT').value.trim();calc();if(all.length)show()};
+$('cT').value=$('stake').value;
+calc();
+
+drawLeagues();
+go(TABS.includes(store.get('tab','home'))?store.get('tab','home'):'home');
+</script>
+</body>
+</html>
